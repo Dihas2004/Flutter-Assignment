@@ -27,8 +27,8 @@ class Movies{
       oriTitle: json["original_title"],
       description: json["overview"],
       posterPath: json["poster_path"], 
-      releaseDate: json["release_date"], 
-      voteAvg: json["vote_average"]
+      releaseDate: json["release_date"].toString(), 
+      voteAvg: json["vote_average"].toDouble(),
       );
   }
 

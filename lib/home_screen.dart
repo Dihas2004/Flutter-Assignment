@@ -1,9 +1,10 @@
-import 'package:carousel_slider/carousel_slider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_app/api/api.dart';
 import 'package:movie_app/models/movie.dart';
 import 'package:movie_app/widgets/movies_slider.dart';
+import 'package:movie_app/widgets/trending_slider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,11 +18,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Movies>> trendingMovies;
+  late Future<List<Movies>> topRatedMovies;
+  late Future<List<Movies>> upcomingMovies;
 
   @override
   void initState(){
     super.initState();
     trendingMovies = API().getTrendingMovies();
+    topRatedMovies = API().getTopRatedMovies();
+    upcomingMovies = API().getUpcomingMovies();
   }
 
 
@@ -56,31 +61,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox( height:32),
               SizedBox(
-                width: double.infinity,
-                child: CarouselSlider.builder(
-                  itemCount: 10,
-                  options: CarouselOptions(
-                    height:300,
-                    autoPlay: true,
-                    viewportFraction: 0.55,
-                    autoPlayCurve: Curves.fastOutSlowIn,
-                    enlargeCenterPage: true,
-                    pageSnapping: true,
-                    autoPlayAnimationDuration: const Duration(seconds:1 ),
-          
-                  ),
-                  itemBuilder:(context,itemIndex,pageViewIndex){
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        height:300,
-                        width:200,
-                        color: Colors.amber,
-                      ),
-                    );
+                child:FutureBuilder(
+                  future: trendingMovies,
+                  builder: (context,snapshot){
+                    if (snapshot.hasError){
+                      return Center(
+                        child:Text(snapshot.error.toString())
+                      );
+                    }else if(snapshot.hasData){
+                      //final data = snapshot.data;
+                      return TrendingSlider(snapshot: snapshot,);
+                    }else{
+                      return const Center(child:CircularProgressIndicator());
+                    }
                   },
                 ),
-                  
               ),
               const SizedBox(height:32),
               Text(
@@ -91,7 +86,23 @@ class _HomeScreenState extends State<HomeScreen> {
               
               ),
               const SizedBox(height:32),
-              const MoviesSlider(),
+              SizedBox(
+                child:FutureBuilder(
+                  future: topRatedMovies,
+                  builder: (context,snapshot){
+                    if (snapshot.hasError){
+                      return Center(
+                        child:Text(snapshot.error.toString())
+                      );
+                    }else if(snapshot.hasData){
+                      //final data = snapshot.data;
+                      return MoviesSlider(snapshot: snapshot,);
+                    }else{
+                      return const Center(child:CircularProgressIndicator());
+                    }
+                  },
+                ),
+              ),
               
               const SizedBox(height:32),
               Text(
@@ -102,7 +113,23 @@ class _HomeScreenState extends State<HomeScreen> {
               
               ),
               const SizedBox(height:32),
-              const MoviesSlider(),
+              SizedBox(
+                child:FutureBuilder(
+                  future: upcomingMovies,
+                  builder: (context,snapshot){
+                    if (snapshot.hasError){
+                      return Center(
+                        child:Text(snapshot.error.toString())
+                      );
+                    }else if(snapshot.hasData){
+                      //final data = snapshot.data;
+                      return MoviesSlider(snapshot: snapshot,);
+                    }else{
+                      return const Center(child:CircularProgressIndicator());
+                    }
+                  },
+                ),
+              ),
             ],
           ),
         )
