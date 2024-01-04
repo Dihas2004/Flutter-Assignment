@@ -54,14 +54,14 @@ class SearchSlider extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    // SizedBox(height: 4),
-                    // Text(
-                    //   '${movie.movieReleaseYear}',
-                    //   style: TextStyle(
-                    //     fontSize: 14,
-                    //     color: Colors.grey,
-                    //   ),
-                    // ),
+                    SizedBox(height: 4),
+                    Text(
+                      '${movie.movieReleaseYear}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
                     SizedBox(height: 4),
                     Text(
                       '${movie.voteAvg ?? ''}',

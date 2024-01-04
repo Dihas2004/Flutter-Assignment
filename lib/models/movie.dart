@@ -41,6 +41,7 @@ class Movies {
   String? posterPath;
   double? voteAvg;
   String description;
+  String? backdropPath;
 
   Movies({
     this.title,
@@ -48,11 +49,13 @@ class Movies {
     this.voteAvg,
     this.posterPath,
     required this.description,
+    this.backdropPath,
   });
 
   factory Movies.fromJson(Map<String, dynamic> json) {
     return Movies(
       title: json['original_title'] as String?,
+      backdropPath: json["backdrop_path"] as String?,
       description: json["overview"],
       movieReleaseYear: json['release_date'] != null
           ? int.tryParse(json['release_date'].toString().split('-')[0])
@@ -63,6 +66,7 @@ class Movies {
       posterPath: json['poster_path'] != null
           ? '${Constants.imageBaseUrl}${json['poster_path']}'
           : null,
+      
     );
   }
 }
