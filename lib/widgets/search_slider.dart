@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie_app/constants.dart';
+import 'package:movie_app/details_screen.dart';
 import 'package:movie_app/models/movie.dart';
 
 class SearchSlider extends StatelessWidget {
@@ -15,6 +16,7 @@ class SearchSlider extends StatelessWidget {
     return SizedBox(
       height: 150,
       width: double.infinity,
+      
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -27,9 +29,17 @@ class SearchSlider extends StatelessWidget {
           }
 
           final Movies movie = movies[index];
-
           return Padding(
             padding: const EdgeInsets.all(8.0),
+            child:GestureDetector(
+            onTap: () {
+            Navigator.push(
+            context,
+            MaterialPageRoute(
+            builder: (context) => DetailsScreen(movie: movie),
+            ),
+            );
+            },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -42,12 +52,15 @@ class SearchSlider extends StatelessWidget {
                     height: 150, // Adjust the height as needed
                   ),
                 ),
-                SizedBox(width: 8),
+                SizedBox(width: 50),
                 Column(
+                  
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       movie.title ?? '',
+                      
+                      
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -70,11 +83,14 @@ class SearchSlider extends StatelessWidget {
                         color: Colors.amber,
                       ),
                     ),
+                    
                   ],
                 ),
               ],
             ),
+            ),
           );
+          
         },
       ),
     );
