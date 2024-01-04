@@ -1,37 +1,28 @@
-import 'package:flutter/material.dart';
-import 'package:movie_app/models/movie.dart';
-
 import 'dart:convert';
-//import 'package:flutter/material.dart';
+
+import 'package:flutter/material.dart';
+import 'package:movie_app/constants.dart';
+import 'package:movie_app/details_screen.dart';
+import 'package:movie_app/models/movie.dart';
 import 'package:http/http.dart' as http;
-import 'package:movie_app/widgets/search_slider.dart'; // Add the http package
-
-
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  SearchPage({Key? key}) : super(key: key);
 
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
 
-
 class _SearchPageState extends State<SearchPage> {
   late Future<List<Movies>> moviesList;
   TextEditingController searchController = TextEditingController();
   List<Movies> displayedMovies = [];
-  
 
-  @override
-  void initState() {
-    super.initState();
-    moviesList = fetchAllMovies();
-  }
+  
 
   Future<List<Movies>> fetchAllMovies() async {
     List<Movies> allMovies = [];
 
-    // Fetch all pages
     for (int page = 1; page <= 37; page++) {
       final response = await http.get(
           Uri.parse('https://api.themoviedb.org/3/movie/upcoming?api_key=c70ffdb8f341ef6671fac7cbbc1f09c6&page=$page'));
@@ -40,19 +31,21 @@ class _SearchPageState extends State<SearchPage> {
         Map<String, dynamic> data = jsonDecode(response.body);
         List<dynamic> movies = data['results'] ?? [];
         allMovies.addAll(movies.map((json) => Movies.fromJson(json)).toList());
-        
       } else {
         throw Exception('Failed to load movies');
       }
     }
-    
-    
-    
-
-    // Set displayedMovies to the movies from the first page
-    
-
     return allMovies;
+  }
+  @override
+  void initState() {
+    super.initState();
+    moviesList = fetchAllMovies();
+
+    // Initialize displayedMovies with data from the first page
+    moviesList.then((allMovies) {
+      displayedMovies = allMovies.take(20).toList();
+  });
   }
 
   List<Movies> updateList(List<Movies> allMovies, String query) {
@@ -67,85 +60,133 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF1f1545),
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Color(0xFF1f1545),
-        elevation: 0.0,
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Search for a Movie",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(
-              height: 20.0,
-            ),
-            TextField(
-              controller: searchController,
-              style: TextStyle(color: Colors.white),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20, top: 70, bottom: 25),
+            child: TextField(
               onChanged: (query) {
-                setState(() {
-                  // Update the list whenever the text in the search bar changes
-                  moviesList = fetchAllMovies();
+                // No need for setState here
+                // Update the displayedMovies list based on the search query
+                // Use moviesList directly instead of waiting for it to complete
+                moviesList.then((allMovies) {
+                  List<Movies> displayedMovies = updateList(allMovies, query);
+                  displayedMovies = displayedMovies.take(20).toList();
+                  setState(() {
+                    // Update the state with the filtered movies
+                    this.displayedMovies = displayedMovies;
+                  });
                 });
               },
               decoration: InputDecoration(
-                filled: true,
-                fillColor: Color(0xff30260),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-                hintText: "eg: The Dark Knight",
                 prefixIcon: Icon(Icons.search),
-                prefixIconColor: Colors.purple.shade900,
+                hintText: 'Search Movies',
+                hintStyle: TextStyle(color: Colors.grey.shade700),
+                filled: true,
+                fillColor: Colors.black,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(15),
+                ),
               ),
             ),
-            SizedBox(
-              height: 20.0,
-            ),
-            Expanded(
-              child: FutureBuilder<List<Movies>>(
-                future: moviesList,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    List<Movies> displayedMovies = updateList(snapshot.data!, searchController.text);
-                    displayedMovies = displayedMovies.take(20).toList();
-                    return ListView.builder(
-                      itemCount: displayedMovies.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SearchSlider(
-                            snapshot: AsyncSnapshot<List<Movies>>.withData(
-                              ConnectionState.done,
-                              [displayedMovies[index]],
+          ),
+          Expanded(
+            child: FutureBuilder<List<Movies>>(
+              future: moviesList,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error loading movies'),
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No Results Found :(',
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                } else {
+                  //displayedMovies = snapshot.data!;
+                  //displayedMovies = displayedMovies.take(20).toList();
+                  //displayedMovies = snapshot.data!;
+                  //displayedMovies = displayedMovies.take(20).toList();
+
+                  return displayedMovies.length == 0
+                      ? Center(
+                          child: Text(
+                            'No Results Found :(',
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
+                        )
+                       
+                  :ListView.builder(
+                          itemCount: displayedMovies.length,
+                          itemBuilder: (context, index) => ListTile(
+                            contentPadding: EdgeInsets.only(left: 30, right: 30),
+                            title: Text(
+                              displayedMovies[index].title!,
+                              style:
+                                  TextStyle(color: Colors.white),
+                            ),
+                            subtitle: Text(
+                              '${displayedMovies[index].movieReleaseYear.toString()}',
+                              style: TextStyle(color: Colors.grey.shade600),
+                            ),
+                            trailing: Text(
+                              '${displayedMovies[index].voteAvg}',
+                              style: TextStyle(
+                                  color: Color.fromARGB(255, 128, 123, 23)
+                              ),
+                            ),
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: Image.network(
+                                '${Constants.imageBaseUrl}${displayedMovies[index].posterPath}',
+                                width: 75,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            onTap: () {
+      // Navigate to a different screen when the ListTile is tapped
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailsScreen(movie: displayedMovies[index]),
+                                ),
+                              );
+                            },
+                            // Other ListTile properties
+                          ),
                         );
-                      },
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text(snapshot.error.toString()),
-                    );
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
+                }
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
