@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:movie_app/models/movie.dart';
 
 import 'dart:convert';
-import 'package:flutter/material.dart';
+//import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:movie_app/widgets/search_slider.dart'; // Add the http package
 
