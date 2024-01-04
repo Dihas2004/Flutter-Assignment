@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_app/api/api.dart';
 import 'package:movie_app/models/movie.dart';
+import 'package:movie_app/search.dart';
 import 'package:movie_app/widgets/movies_slider.dart';
 import 'package:movie_app/widgets/trending_slider.dart';
 
@@ -45,8 +46,21 @@ class _HomeScreenState extends State<HomeScreen> {
           
         ),
         centerTitle: true,
+        actions: [
+        IconButton(
+          icon: Icon(Icons.search),
+          onPressed: () {
+          // Navigate to the search screen here
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchPage()),
+            );
+          },
+        ),
+    ],
 
       ),
+      
     
       body:SingleChildScrollView(
         physics:const BouncingScrollPhysics(),
