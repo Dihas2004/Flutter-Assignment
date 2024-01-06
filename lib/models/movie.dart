@@ -86,7 +86,9 @@ class Movies {
           ? '${Constants.imageBaseUrl}${json['poster_path']}'
           : null,
       movieID: json['id'] as int,
-      cast: [],
+      cast: (json['cast'] as List<dynamic>?)
+          ?.map((actor) => Cast.fromJson(actor))
+          .toList() ?? [],
       
     );
   }
