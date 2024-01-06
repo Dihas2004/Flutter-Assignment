@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie_app/constants.dart';
+import 'package:movie_app/models/movie.dart';
 import 'package:movie_app/details_screen.dart';
 
 class MoviesSlider extends StatelessWidget {
@@ -22,16 +23,23 @@ class MoviesSlider extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
-              onTap: (){
-                Navigator.push(
-                context,
-                MaterialPageRoute(
-                builder:(context)=>DetailsScreen(
-                  movie:snapshot.data[index],
-                  ),
-                ),
-              );
-              },
+                  onTap: () async {
+                    final Movies selectedMovie = snapshot.data[index];
+                    //print('Selected Movie ID: ${selectedMovie.movieID}');
+                    try {
+                      await selectedMovie.fetchCredits(selectedMovie.movieID!);
+                      //print('Fetched credits successfully');
+                    } catch (e) {
+                    //print('Error fetching credits: $e');
+                    }
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailsScreen(movie: selectedMovie),
+                      ),
+                    );
+                  },
+
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                   

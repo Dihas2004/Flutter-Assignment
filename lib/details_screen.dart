@@ -7,29 +7,29 @@ import 'package:movie_app/widgets/back_button.dart';
 
 class DetailsScreen extends StatelessWidget {
   const DetailsScreen({
-    super.key,
+    Key? key,
     required this.movie,
-  
-});
+  }) : super(key: key);
+
   final Movies movie;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
-        slivers:[
-          SliverAppBar.large(
+        slivers: [
+          SliverAppBar(
             leading: const backButton(),
             backgroundColor: Colours.scaffoldBgColor,
             expandedHeight: 500,
-            pinned:true,
+            pinned: true,
             floating: true,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-              movie.title ?? 'Unnamed Movie',
-              style:GoogleFonts.belleza(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                
+                movie.title ?? 'Unnamed Movie',
+                style: GoogleFonts.belleza(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               background: ClipRRect(
@@ -46,94 +46,141 @@ class DetailsScreen extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child:Padding(
-              padding:EdgeInsets.all(12),
-              child:Column(children: [
-                Text('Overview',
-                style:GoogleFonts.openSans(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 16,),
-                Text(movie.description,
-                style:GoogleFonts.roboto(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w400,
-                  ),
-                  //textAlign: TextAlign.justify,
-                ),
-                const SizedBox(height:16),
-                SizedBox(
-                  child:Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      border: Border.all(color:Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Overview',
+                    style: GoogleFonts.openSans(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
                     ),
-                    child:Row(children: [
-                      Text('Release Year: ',
-                      style:GoogleFonts.roboto(
-                        
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        ),  
-                      ),
-                      Text(
-                        movie.movieReleaseYear.toString(),
-                        style:GoogleFonts.roboto(
-                        
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          ),  
-                        ),
-                      ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    movie.description,
+                    style: GoogleFonts.roboto(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w400,
                     ),
-                    
                   ),
-                  Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                      border: Border.all(color:Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Release Year: ',
+                              style: GoogleFonts.roboto(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              movie.movieReleaseYear.toString(),
+                              style: GoogleFonts.roboto(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child:Row(
-                        children: [
-                        Text(
-                          'Rating: ',
-                          style:GoogleFonts.roboto(
-                        
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        const Icon(
-                          Icons.star,
-                          color: Colors.amber,
+                        child: Row(
+                          children: [
+                            Text(
+                              'Rating: ',
+                              style: GoogleFonts.roboto(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Icon(
+                              Icons.star,
+                              color: Colors.amber,
+                            ),
+                            Text(
+                              '${movie.voteAvg?.toStringAsFixed(1)}/10',
+                            ),
+                          ],
                         ),
-                        Text(
-                          '${movie.voteAvg?.toStringAsFixed(1)}/10'
-                        ),
-                      ],
-                      
                       ),
+                    ],
                   ),
-
-                  ],
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Cast',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                
-                ),
-
-              ],
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 200,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: movie.cast.length,
+                      itemBuilder: (context, index) {
+                        return _buildCastItem(movie.cast[index]);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ] ,
+        ],
       ),
-      );
+    );
   }
 }
 
+ Widget _buildCastItem(Cast actor) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 16),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundImage: NetworkImage(
+              '${Constants.imageBaseUrl}${actor.profilePath}',
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            actor.name,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            actor.character,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }

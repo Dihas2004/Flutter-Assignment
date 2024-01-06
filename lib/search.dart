@@ -15,47 +15,98 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   late Future<List<Movies>> moviesList;
+  
   TextEditingController searchController = TextEditingController();
   List<Movies> displayedMovies = [];
+  List<Movies> storedMovies = [];
+  ScrollController scrollController = ScrollController();
+  int currentPage = 1;
 
+  
+  Future<List<Movies>> searchMovies(String query) async {
+    List<Movies> searchResults = [];
+
+    final response = await http.get(
+      Uri.parse(
+          'https://api.themoviedb.org/3/search/movie?query=$query&api_key=${Constants.apiKey}'),
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      List<dynamic> movies = data['results'] ?? [];
+      searchResults.addAll(movies.map((json) => Movies.fromJson(json)).toList());
+    } else {
+      throw Exception('Failed to search movies');
+    }
+
+    return searchResults;
+  }
   
 
   Future<List<Movies>> fetchAllMovies() async {
     List<Movies> allMovies = [];
 
-    for (int page = 1; page <= 37; page++) {
-      final response = await http.get(
-          Uri.parse('https://api.themoviedb.org/3/movie/upcoming?api_key=c70ffdb8f341ef6671fac7cbbc1f09c6&page=$page'));
+    final response = await http.get(
+      Uri.parse('https://api.themoviedb.org/3/movie/upcoming?api_key=c70ffdb8f341ef6671fac7cbbc1f09c6&page=1'),
+    );
 
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        List<dynamic> movies = data['results'] ?? [];
-        allMovies.addAll(movies.map((json) => Movies.fromJson(json)).toList());
-      } else {
-        throw Exception('Failed to load movies');
-      }
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      List<dynamic> movies = data['results'] ?? [];
+      allMovies.addAll(movies.map((json) => Movies.fromJson(json)).toList());
+    } else {
+      throw Exception('Failed to load movies');
     }
+
     return allMovies;
   }
-  @override
+   @override
   void initState() {
     super.initState();
     moviesList = fetchAllMovies();
+    
+    
 
     // Initialize displayedMovies with data from the first page
     moviesList.then((allMovies) {
-      displayedMovies = allMovies.take(20).toList();
-  });
+      displayedMovies = allMovies;
+      storedMovies = displayedMovies;
+
+      for (Movies movie in displayedMovies) {
+        movie.fetchCredits(movie.movieID!);
+      }
+
+      // Update the state to rebuild the UI with the fetched credits
+      setState(() {});
+    });
+
+    // Add a listener to the scrollController to detect when the user reaches the end
+    
   }
+  
+
+  // Method to fetch more movies and append them to displayedMovies
+  
 
   List<Movies> updateList(List<Movies> allMovies, String query) {
-    if (query.isEmpty) {
-      return allMovies;
-    }
-    return allMovies.where((movie) {
-      return movie.title?.toLowerCase().contains(query.toLowerCase()) ?? false;
-    }).toList();
+  if (query.isEmpty) {
+    return allMovies;
   }
+  
+  query = query.toLowerCase();
+  
+  return allMovies.where((movie) {
+    // Check if the movie title contains the query
+    //bool isTitleMatch = movie.title?.toLowerCase().contains(query) ?? false;
+
+    // Check if any cast member name contains the query
+    bool isCastMemberMatch = movie.cast.any((cast) =>
+        cast.name.toLowerCase().contains(query));
+
+    // Return true if either the movie title or any cast member matches the query
+    return isCastMemberMatch;
+  }).toList();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -76,18 +127,27 @@ class _SearchPageState extends State<SearchPage> {
             padding: const EdgeInsets.only(left: 20, right: 20, top: 70, bottom: 25),
             child: TextField(
               onChanged: (query) {
-                // No need for setState here
-                // Update the displayedMovies list based on the search query
-                // Use moviesList directly instead of waiting for it to complete
-                moviesList.then((allMovies) {
-                  List<Movies> displayedMovies = updateList(allMovies, query);
-                  displayedMovies = displayedMovies.take(20).toList();
+                if (query.isEmpty) {
+              setState(() {
+                // If query is empty, show allMovies
+                moviesList = fetchAllMovies();
+    // Initialize displayedMovies with data from the first page
+              moviesList.then((allMovies) {
+              displayedMovies = allMovies;
+              });
+                
+              });
+            }else{
+            // Update the displayedMovies list based on the search query
+                searchMovies(query).then((searchResults) {
+                  displayedMovies = searchResults.take(20).toList();
                   setState(() {
-                    // Update the state with the filtered movies
-                    this.displayedMovies = displayedMovies;
+                  // Update the state with the search results
+                  this.displayedMovies = displayedMovies;
                   });
                 });
-              },
+            }
+          },
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: 'Search Movies',
@@ -143,6 +203,7 @@ class _SearchPageState extends State<SearchPage> {
                         )
                        
                   :ListView.builder(
+                          controller: scrollController,
                           itemCount: displayedMovies.length,
                           itemBuilder: (context, index) => ListTile(
                             contentPadding: EdgeInsets.only(left: 30, right: 30),
@@ -170,15 +231,17 @@ class _SearchPageState extends State<SearchPage> {
                                 fit: BoxFit.cover,
                               ),
                             ),
-                            onTap: () {
-      // Navigate to a different screen when the ListTile is tapped
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailsScreen(movie: displayedMovies[index]),
-                                ),
-                              );
-                            },
+                            onTap: () async {
+                                    final Movies selectedMovie = displayedMovies[index];
+                                    await selectedMovie.fetchCredits(selectedMovie.movieID!);
+
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DetailsScreen(movie: selectedMovie),
+                                      ),
+                                    );
+                                  },
                             // Other ListTile properties
                           ),
                         );

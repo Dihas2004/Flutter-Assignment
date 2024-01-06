@@ -2,7 +2,52 @@
 
 import 'package:movie_app/constants.dart';
 
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
+class Cast {
+  bool adult;
+  int gender;
+  int id;
+  String knownForDepartment;
+  String name;
+  String originalName;
+  double popularity;
+  String? profilePath;
+  int castId;
+  String character;
+  String creditId;
+
+  Cast({
+    required this.adult,
+    required this.gender,
+    required this.id,
+    required this.knownForDepartment,
+    required this.name,
+    required this.originalName,
+    required this.popularity,
+    this.profilePath,
+    required this.castId,
+    required this.character,
+    required this.creditId,
+  });
+
+  factory Cast.fromJson(Map<String, dynamic> json) {
+    return Cast(
+      adult: json['adult'] as bool,
+      gender: json['gender'] as int,
+      id: json['id'] as int,
+      knownForDepartment: json['known_for_department'] as String,
+      name: json['name'] as String,
+      originalName: json['original_name'] as String,
+      popularity: json['popularity'] as double,
+      profilePath: json['profile_path'] as String?,
+      castId: json['cast_id'] as int,
+      character: json['character'] as String,
+      creditId: json['credit_id'] as String,
+    );
+  }
+}
 
 
 class Movies {
@@ -12,6 +57,8 @@ class Movies {
   double? voteAvg;
   String description;
   String? backdropPath;
+  int? movieID;
+  List<Cast> cast;
 
   Movies({
     this.title,
@@ -20,6 +67,8 @@ class Movies {
     this.posterPath,
     required this.description,
     this.backdropPath,
+    this.movieID,
+    required this.cast,
   });
 
   factory Movies.fromJson(Map<String, dynamic> json) {
@@ -36,8 +85,32 @@ class Movies {
       posterPath: json['poster_path'] != null
           ? '${Constants.imageBaseUrl}${json['poster_path']}'
           : null,
+      movieID: json['id'] as int,
+      cast: [],
       
     );
   }
+  Future<void> fetchCredits(int movieId) async {
+  final url = 'https://api.themoviedb.org/3/movie/$movieId/credits?api_key=${Constants.apiKey}';
+  print('Fetching credits from: $url');
+
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    final decodedData = json.decode(response.body);
+    
+    // Print the response to check if it contains the expected data
+    print('Credits response: $decodedData');
+
+    // Extract cast
+    cast = (decodedData['cast'] as List)
+        .map((actor) => Cast.fromJson(actor))
+        .toList();
+    
+  } else {
+    print('Failed to fetch credits. Status code: ${response.statusCode}, Response body: ${response.body}');
+    throw Exception('Failed to fetch credits');
+  }
+}
 }
 

@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_app/constants.dart';
+import 'package:movie_app/models/movie.dart';
 import 'package:movie_app/details_screen.dart';
 
 class TrendingSlider extends StatelessWidget {
@@ -28,16 +29,23 @@ class TrendingSlider extends StatelessWidget {
         ),
         itemBuilder:(context,itemIndex,pageViewIndex){
           return GestureDetector(
-            onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                builder:(context)=>DetailsScreen(
-                  movie:snapshot.data[itemIndex],
-                  ),
-                ),
-              );
-            },
+            onTap: () async {
+                    final Movies selectedMovie = snapshot.data[itemIndex];
+                    //print('Selected Movie ID: ${selectedMovie.movieID}');
+                    try {
+                      await selectedMovie.fetchCredits(selectedMovie.movieID!);
+                      //print('Fetched credits successfully');
+                    } catch (e) {
+                    //print('Error fetching credits: $e');
+                    }
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailsScreen(movie: selectedMovie),
+                      ),
+                    );
+                  },
+
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: SizedBox(
