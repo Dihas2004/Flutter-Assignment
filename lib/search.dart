@@ -3,8 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:movie_app/constants.dart';
 import 'package:movie_app/details_screen.dart';
+import 'package:movie_app/models/actor.dart';
 import 'package:movie_app/models/movie.dart';
 import 'package:http/http.dart' as http;
+
+enum SearchMode {
+  MovieTitle,
+  ActorName,
+}
 
 class SearchPage extends StatefulWidget {
   SearchPage({Key? key}) : super(key: key);
@@ -15,12 +21,83 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   late Future<List<Movies>> moviesList;
+  SearchMode searchMode = SearchMode.MovieTitle;
   
   TextEditingController searchController = TextEditingController();
   List<Movies> displayedMovies = [];
   List<Movies> storedMovies = [];
   ScrollController scrollController = ScrollController();
   int currentPage = 1;
+
+  Future<List<Movies>> getMoviesByActor(String actorName) async {
+  List<Movies> searchResults = [];
+
+  final actorDetails = await getActorDetails(actorName);
+    final response = await http.get(
+      Uri.parse(
+          'https://api.themoviedb.org/3/discover/movie?with_cast=${actorDetails?.id}&sort_by=release_date.asc&api_key=${Constants.apiKey}&page=1',
+        ),
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      List<dynamic> movies = data['results'] ?? [];
+      searchResults.addAll(movies.map((json) => Movies.fromJson(json)).toList());
+    } else {
+      throw Exception('Failed to search movies');
+    }
+
+    return searchResults;
+}
+
+  Future<Actor?> getActorDetails(String actorName) async {
+    final response = await http.get(
+      Uri.parse(
+        'https://api.themoviedb.org/3/search/person?api_key=${Constants.apiKey}&query=$actorName&page=1',
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+    List<dynamic> results = data['results'] ?? [];
+
+    if (results.isNotEmpty) {
+      return Actor.fromJson({
+        'name': results[0]['name'],
+        'known_for_department': results[0]['known_for_department'],
+        'id': results[0]['id'],
+        
+        // Add other properties as needed
+      });
+    } else {
+      return null;
+    }
+  } else {
+    throw Exception('Failed to get actor details. Status code: ${response.statusCode}');
+  }
+  }
+
+  void updateSearchMode(SearchMode mode) {
+  setState(() {
+    searchMode = mode;
+    // Clear the search results when changing the mode
+    displayedMovies = storedMovies;
+    searchController.clear();
+    if (searchMode == SearchMode.MovieTitle) {
+      // Fetch and display the initial movies when searching by movie title
+      moviesList.then((allMovies) {
+        displayedMovies = allMovies.take(20).toList();
+        setState(() {});
+      });
+    } else {
+      // Fetch and display the initial movies when searching by actor name
+      fetchAllMovies().then((allMovies) {
+        displayedMovies = allMovies.take(20).toList();
+        setState(() {});
+      });
+    }
+  });
+  }
 
   
   Future<List<Movies>> searchMovies(String query) async {
@@ -124,30 +201,81 @@ class _SearchPageState extends State<SearchPage> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 20, right: 20, top: 70, bottom: 25),
-            child: TextField(
-              onChanged: (query) {
-                if (query.isEmpty) {
-              setState(() {
-                // If query is empty, show allMovies
-                moviesList = fetchAllMovies();
-    // Initialize displayedMovies with data from the first page
-              moviesList.then((allMovies) {
-              displayedMovies = allMovies;
-              });
+          padding: const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: () => updateSearchMode(SearchMode.MovieTitle),
+                style: ElevatedButton.styleFrom(
+                  primary: searchMode == SearchMode.MovieTitle
+                      ? Colors.blue // Highlighted color for selected mode
+                      : Colors.grey.shade800,
+                ),
+                child: Text('Search by Movie Title'),
+              ),
+              ElevatedButton(
                 
-              });
-            }else{
-            // Update the displayedMovies list based on the search query
-                searchMovies(query).then((searchResults) {
-                  displayedMovies = searchResults.take(20).toList();
-                  setState(() {
-                  // Update the state with the search results
-                  this.displayedMovies = displayedMovies;
+                onPressed: () => updateSearchMode(SearchMode.ActorName),
+                style: ElevatedButton.styleFrom(
+                  primary: searchMode == SearchMode.ActorName
+                      ? Colors.blue // Highlighted color for selected mode
+                      : Colors.grey.shade800,
+                ),
+                child: Text('Search by Actor Name'),
+              ),
+            ],
+          ),
+        ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 25),
+            child: TextField(
+               onChanged: (query) {
+              if (query.isEmpty) {
+                moviesList = fetchAllMovies();
+    
+    
+
+    // Initialize displayedMovies with data from the first page
+                      moviesList.then((allMovies) {
+                        displayedMovies = allMovies;
+                        storedMovies = displayedMovies;
+
+                        for (Movies movie in displayedMovies) {
+                          movie.fetchCredits(movie.movieID!);
+                        }
+
+                        // Update the state to rebuild the UI with the fetched credits
+                        setState(() {});});
+                // ... existing code ...
+              } else {
+                // Update the displayedMovies list based on the search query or actor name
+                if (searchMode == SearchMode.MovieTitle) {
+                  // Search by movie title
+                  searchMovies(query).then((searchResults) {
+                    displayedMovies = searchResults.take(20).toList();
+                    setState(() {
+                      // Update the state with the search results
+                      displayedMovies = displayedMovies;
+                    });
                   });
-                });
-            }
-          },
+                } else {
+                  // Search by actor name
+                  if (query.length > 1) {
+                    getMoviesByActor(query).then((searchResults) {
+                      if (searchResults.isNotEmpty) {
+                        // Update displayedMovies only if searchResults is not empty
+                        displayedMovies = searchResults.take(20).toList();
+                        setState(() {
+                          // Update the state with the search results
+                          displayedMovies = displayedMovies;
+                        });
+                      }
+                    });
+                  }
+                }
+              }
+              },
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: 'Search Movies',
@@ -206,10 +334,13 @@ class _SearchPageState extends State<SearchPage> {
                           controller: scrollController,
                           itemCount: displayedMovies.length,
                           itemBuilder: (context, index) => ListTile(
-                            contentPadding: EdgeInsets.only(left: 30, right: 30),
+                            //height:200,
+                            //contentPadding: EdgeInsets.only(left: 20, right: 20,top:0),
                             title: Text(
+                              
                               displayedMovies[index].title!,
                               style:
+                                  
                                   TextStyle(color: Colors.white),
                             ),
                             subtitle: Text(
@@ -224,10 +355,12 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                             leading: ClipRRect(
                               borderRadius: BorderRadius.circular(5),
+                              
                               child: Image.network(
                                 '${Constants.imageBaseUrl}${displayedMovies[index].posterPath}',
-                                width: 75,
+                                width: 150,
                                 height: double.infinity,
+                                filterQuality: FilterQuality.high,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -254,3 +387,5 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
+
+
