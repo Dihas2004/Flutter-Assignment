@@ -59,44 +59,45 @@ class _SearchPageState extends State<SearchPage> {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
-    List<dynamic> results = data['results'] ?? [];
+      List<dynamic> results = data['results'] ?? [];
 
-    if (results.isNotEmpty) {
-      return Actor.fromJson({
-        'name': results[0]['name'],
-        'known_for_department': results[0]['known_for_department'],
-        'id': results[0]['id'],
+      if (results.isNotEmpty) {
+        return Actor.fromJson({
+          'name': results[0]['name'],
+          'known_for_department': results[0]['known_for_department'],
+          'id': results[0]['id'],
         
         // Add other properties as needed
-      });
+        });
+      } else {
+        return null;
+      }
     } else {
-      return null;
+      throw Exception('Failed to get actor details. Status code: ${response.statusCode}');
     }
-  } else {
-    throw Exception('Failed to get actor details. Status code: ${response.statusCode}');
-  }
+
   }
 
   void updateSearchMode(SearchMode mode) {
-  setState(() {
-    searchMode = mode;
-    // Clear the search results when changing the mode
-    displayedMovies = storedMovies;
-    searchController.clear();
-    if (searchMode == SearchMode.MovieTitle) {
-      // Fetch and display the initial movies when searching by movie title
-      moviesList.then((allMovies) {
-        displayedMovies = allMovies.take(20).toList();
-        setState(() {});
-      });
-    } else {
-      // Fetch and display the initial movies when searching by actor name
-      fetchAllMovies().then((allMovies) {
-        displayedMovies = allMovies.take(20).toList();
-        setState(() {});
-      });
-    }
-  });
+    setState(() {
+      searchMode = mode;
+      // Clear the search results when changing the mode
+      displayedMovies = storedMovies;
+      searchController.clear();
+      if (searchMode == SearchMode.MovieTitle) {
+        // Fetch and display the initial movies when searching by movie title
+        moviesList.then((allMovies) {
+          displayedMovies = allMovies.take(20).toList();
+          setState(() {});
+        });
+      } else {
+        // Fetch and display the initial movies when searching by actor name
+        fetchAllMovies().then((allMovies) {
+          displayedMovies = allMovies.take(20).toList();
+          setState(() {});
+        });
+      }
+    });
   }
 
   
@@ -137,6 +138,7 @@ class _SearchPageState extends State<SearchPage> {
 
     return allMovies;
   }
+
    @override
   void initState() {
     super.initState();
@@ -166,24 +168,24 @@ class _SearchPageState extends State<SearchPage> {
   
 
   List<Movies> updateList(List<Movies> allMovies, String query) {
-  if (query.isEmpty) {
-    return allMovies;
+    if (query.isEmpty) {
+      return allMovies;
+    }
+  
+    query = query.toLowerCase();
+  
+    return allMovies.where((movie) {
+      // Check if the movie title contains the query
+      //bool isTitleMatch = movie.title?.toLowerCase().contains(query) ?? false;
+
+       // Check if any cast member name contains the query
+      bool isCastMemberMatch = movie.cast.any((cast) =>
+          cast.name.toLowerCase().contains(query));
+
+      // Return true if either the movie title or any cast member matches the query
+      return isCastMemberMatch;
+    }).toList();
   }
-  
-  query = query.toLowerCase();
-  
-  return allMovies.where((movie) {
-    // Check if the movie title contains the query
-    //bool isTitleMatch = movie.title?.toLowerCase().contains(query) ?? false;
-
-    // Check if any cast member name contains the query
-    bool isCastMemberMatch = movie.cast.any((cast) =>
-        cast.name.toLowerCase().contains(query));
-
-    // Return true if either the movie title or any cast member matches the query
-    return isCastMemberMatch;
-  }).toList();
-}
 
   @override
   Widget build(BuildContext context) {
@@ -201,80 +203,81 @@ class _SearchPageState extends State<SearchPage> {
       body: Column(
         children: [
           Padding(
-          padding: const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton(
-                onPressed: () => updateSearchMode(SearchMode.MovieTitle),
-                style: ElevatedButton.styleFrom(
-                  primary: searchMode == SearchMode.MovieTitle
+            padding: const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () => updateSearchMode(SearchMode.MovieTitle),
+                  style: ElevatedButton.styleFrom(
+                    primary: searchMode == SearchMode.MovieTitle
                       ? Colors.blue // Highlighted color for selected mode
                       : Colors.grey.shade800,
+                  ),
+                  child: Text('Search by Movie Title'),
                 ),
-                child: Text('Search by Movie Title'),
-              ),
-              ElevatedButton(
+                ElevatedButton(
                 
-                onPressed: () => updateSearchMode(SearchMode.ActorName),
-                style: ElevatedButton.styleFrom(
-                  primary: searchMode == SearchMode.ActorName
+                  onPressed: () => updateSearchMode(SearchMode.ActorName),
+                  style: ElevatedButton.styleFrom(
+                    primary: searchMode == SearchMode.ActorName
                       ? Colors.blue // Highlighted color for selected mode
                       : Colors.grey.shade800,
+                  ),
+                  child: Text('Search by Actor Name'),
                 ),
-                child: Text('Search by Actor Name'),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
           Padding(
             padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 25),
             child: TextField(
-               onChanged: (query) {
-              if (query.isEmpty) {
-                moviesList = fetchAllMovies();
+              onChanged: (query) {
+                if (query.isEmpty) {
+                  moviesList = fetchAllMovies();
     
     
 
-    // Initialize displayedMovies with data from the first page
-                      moviesList.then((allMovies) {
-                        displayedMovies = allMovies;
-                        storedMovies = displayedMovies;
+                  // Initialize displayedMovies with data from the first page
+                  moviesList.then((allMovies) {
+                    displayedMovies = allMovies;
+                    storedMovies = displayedMovies;
 
-                        for (Movies movie in displayedMovies) {
-                          movie.fetchCredits(movie.movieID!);
-                        }
+                    for (Movies movie in displayedMovies) {
+                      movie.fetchCredits(movie.movieID!);
+                    }
 
                         // Update the state to rebuild the UI with the fetched credits
-                        setState(() {});});
-                // ... existing code ...
-              } else {
-                // Update the displayedMovies list based on the search query or actor name
-                if (searchMode == SearchMode.MovieTitle) {
-                  // Search by movie title
-                  searchMovies(query).then((searchResults) {
-                    displayedMovies = searchResults.take(20).toList();
-                    setState(() {
-                      // Update the state with the search results
-                      displayedMovies = displayedMovies;
-                    });
+                    setState(() {});
                   });
+                  // ... existing code ...
                 } else {
-                  // Search by actor name
-                  if (query.length > 1) {
-                    getMoviesByActor(query).then((searchResults) {
-                      if (searchResults.isNotEmpty) {
-                        // Update displayedMovies only if searchResults is not empty
-                        displayedMovies = searchResults.take(20).toList();
-                        setState(() {
-                          // Update the state with the search results
-                          displayedMovies = displayedMovies;
-                        });
-                      }
+                // Update the displayedMovies list based on the search query or actor name
+                  if (searchMode == SearchMode.MovieTitle) {
+                    // Search by movie title
+                    searchMovies(query).then((searchResults) {
+                      displayedMovies = searchResults.take(20).toList();
+                      setState(() {
+                        // Update the state with the search results
+                        displayedMovies = displayedMovies;
+                      });
                     });
+                  } else {
+                  // Search by actor name
+                    if (query.length > 1) {
+                      getMoviesByActor(query).then((searchResults) {
+                        if (searchResults.isNotEmpty) {
+                          // Update displayedMovies only if searchResults is not empty
+                          displayedMovies = searchResults.take(20).toList();
+                          setState(() {
+                            // Update the state with the search results
+                            displayedMovies = displayedMovies;
+                          });
+                        }
+                      });
+                    }
                   }
                 }
-              }
               },
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
