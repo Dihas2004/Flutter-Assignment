@@ -301,26 +301,22 @@ class _SearchPageState extends State<SearchPage> {
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error loading movies'),
-                  );
+                    return Center(
+                      child: Text('Error loading movies'),
+                    );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No Results Found :(',
-                      style: TextStyle(
-                        color: Colors.grey.shade700,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
+                    return Center(
+                      child: Text(
+                        'No Results Found :(',
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  );
+                    );
                 } else {
-                  //displayedMovies = snapshot.data!;
-                  //displayedMovies = displayedMovies.take(20).toList();
-                  //displayedMovies = snapshot.data!;
-                  //displayedMovies = displayedMovies.take(20).toList();
-
+                  
                   return displayedMovies.length == 0
                       ? Center(
                           child: Text(
@@ -340,15 +336,15 @@ class _SearchPageState extends State<SearchPage> {
                             height:200,
                             //contentPadding: EdgeInsets.only(left: 20, right: 20,top:0),
                             title: Text(
-                              
                               displayedMovies[index].title!,
                               style:
-                                  
-                                  TextStyle(color: Colors.white),
+                              TextStyle(color: Colors.white),
                             ),
                             subtitle: Text(
                               '${displayedMovies[index].movieReleaseYear.toString()}',
-                              style: TextStyle(color: Colors.grey.shade600),
+                              style: TextStyle(
+                                  color: Colors.grey.shade600
+                              ),
                             ),
                             trailing: Text(
                               '${displayedMovies[index].voteAvg}',
@@ -368,19 +364,19 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                             ),
                             onTap: () async {
-                                    final Movies selectedMovie = displayedMovies[index];
-                                    await selectedMovie.fetchCredits(selectedMovie.movieID!);
+                              final Movies selectedMovie = displayedMovies[index];
+                              await selectedMovie.fetchCredits(selectedMovie.movieID!);
 
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => DetailsScreen(movie: selectedMovie),
-                                      ),
-                                    );
-                                  },
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailsScreen(movie: selectedMovie),
+                                ),
+                              );
+                            },
                             // Other ListTile properties
                           ),
-                        );
+                  );
                 }
               },
             ),
