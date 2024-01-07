@@ -333,8 +333,8 @@ class _SearchPageState extends State<SearchPage> {
                   :ListView.builder(
                           controller: scrollController,
                           itemCount: displayedMovies.length,
-                          itemBuilder: (context, index) => ListTile(
-                            //height:200,
+                          itemBuilder: (context, index) => CustomListTile(
+                            height:200,
                             //contentPadding: EdgeInsets.only(left: 20, right: 20,top:0),
                             title: Text(
                               
@@ -389,3 +389,65 @@ class _SearchPageState extends State<SearchPage> {
 }
 
 
+class CustomListTile extends StatelessWidget {
+  final Widget? leading; // Optional leading widget
+  final Text? title; // Required title text
+  final Text? subtitle; // Optional subtitle text
+  final Function? onTap; // Optional tap event handler
+  // Optional double tap event handler
+  final Widget? trailing; // Optional trailing widget
+   // Optional tile background color
+  final double? height; // Required height for the custom list tile
+
+  // Constructor for the custom list tile
+  const CustomListTile({
+    super.key,
+    this.leading,
+    this.title,
+    this.subtitle,
+    this.onTap,
+    
+    this.trailing,
+    
+    required this.height, // Make height required for clarity
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material( // Material design container for the list tile
+      // Set background color if provided
+      child: InkWell( // Tappable area with event handlers
+        onTap: () => onTap!(), // Tap event handler
+        
+        child: SizedBox( // Constrain the size of the list tile
+          height: height, // Set custom height from constructor
+          child: Row( // Row layout for list item content
+            children: [
+              Padding( // Padding for the leading widget
+                padding: const EdgeInsets.only(left: 12.0, right: 12.0,top:12,bottom: 12),
+                child: leading, // Display leading widget
+              ),
+              Expanded( // Expanded section for title and subtitle
+                child: Column( // Column layout for title and subtitle
+                  crossAxisAlignment: CrossAxisAlignment.start, // Align text left
+                  children: [
+                    Padding(
+                    padding: const EdgeInsets.only(left: 2.0, right: 12.0,top:50,bottom: 12),
+                    child:title ?? const SizedBox(),
+                    ), // Display title or empty space
+                    const SizedBox(height: 10), // Spacing between title and subtitle
+                    subtitle ?? const SizedBox(), // Display subtitle or empty space
+                  ],
+                ),
+              ),
+              Padding( // Padding for the trailing widget
+                padding: const EdgeInsets.all(12.0),
+                child: trailing, // Display trailing widget
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
