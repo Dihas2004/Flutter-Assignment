@@ -19,6 +19,7 @@ class _MoviesGridScreenState extends State<MoviesGridScreen> {
   late List<Movies> displayedMovies;
   late List<Movies> storedMovies;
   late int currentPage;
+  late TextEditingController searchController;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _MoviesGridScreenState extends State<MoviesGridScreen> {
     displayedMovies = [];
     storedMovies = [];
     currentPage = 1;
+    searchController = TextEditingController();
 
     // Fetch initial movies
     fetchMovies();
@@ -59,12 +61,12 @@ class _MoviesGridScreenState extends State<MoviesGridScreen> {
     String url = '';
 
     // Customize the API endpoint based on the movie type
-    //String apiEndpoint = '';
+    
     if (widget.movieType == 'Top Rated') {
-      //apiEndpoint = 'top_rated';
+      
       url = 'https://api.themoviedb.org/3/movie/top_rated?api_key=${Constants.apiKey}&page=$page';
     } else if (widget.movieType == 'Grossing') {
-      //apiEndpoint = 'upcoming';
+      
       url = 'https://api.themoviedb.org/3/discover/movie?api_key=${Constants.apiKey}&sort_by=revenue.desc&page=$page';
     }
 
@@ -84,14 +86,38 @@ class _MoviesGridScreenState extends State<MoviesGridScreen> {
     return allMovies;
   }
 
+  void searchMovies(String query) {
+    List<Movies> results = storedMovies
+        .where((movie) => movie.title!.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+    setState(() {
+      displayedMovies = results;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text('Movies Grid'),
         
-        title: Text('See All Movies'),
       ),
-      body: grid_slider(scrollController: scrollController, displayedMovies: displayedMovies),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              onChanged: searchMovies,
+              decoration: InputDecoration(
+                labelText: 'Search Movies',
+                prefixIcon: Icon(Icons.search),
+              ),
+            ),
+          ),
+          Expanded(child: grid_slider(scrollController: scrollController, displayedMovies: displayedMovies)),
+        ],
+      ),
     );
   }
 }
