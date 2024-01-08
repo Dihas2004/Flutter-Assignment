@@ -8,7 +8,7 @@ class API{
   //isolate some parts of URL
   static const _trendingURL = 'https://api.themoviedb.org/3/trending/movie/day?api_key=${Constants.apiKey}';
   static const _topRatedURL = 'https://api.themoviedb.org/3/movie/top_rated?api_key=${Constants.apiKey}';
-  static const _upcomingMoviesURL = 'https://api.themoviedb.org/3/movie/upcoming?api_key=${Constants.apiKey}';
+  static const _grossingMoviesURL = 'https://api.themoviedb.org/3/discover/movie?api_key=${Constants.apiKey}&sort_by=revenue.desc';
 
 
   Future<List<Movies>> getTrendingMovies() async{
@@ -34,8 +34,8 @@ class API{
 
   }
 
-  Future<List<Movies>> getUpcomingMovies() async{
-    final response = await http.get(Uri.parse(_upcomingMoviesURL));
+  Future<List<Movies>> getGrossingMovies() async{
+    final response = await http.get(Uri.parse(_grossingMoviesURL));
     if (response.statusCode == 200){
       final decodedData = json.decode(response.body)['results'] as List;
       return decodedData.map((movie)=>Movies.fromJson(movie)).toList();

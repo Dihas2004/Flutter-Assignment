@@ -20,14 +20,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Movies>> trendingMovies;
   late Future<List<Movies>> topRatedMovies;
-  late Future<List<Movies>> upcomingMovies;
+  late Future<List<Movies>> grossingMovies;
 
   @override
   void initState(){
     super.initState();
     trendingMovies = API().getTrendingMovies();
     topRatedMovies = API().getTopRatedMovies();
-    upcomingMovies = API().getUpcomingMovies();
+    grossingMovies = API().getGrossingMovies();
   }
 
 
@@ -110,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     }else if(snapshot.hasData){
                       //final data = snapshot.data;
-                      return MoviesSlider(snapshot: snapshot,);
+                      return MoviesSlider(snapshot: snapshot,movieType: 'Top Rated',);
                     }else{
                       return const Center(child:CircularProgressIndicator());
                     }
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
               
               const SizedBox(height:32),
               Text(
-                'Upcoming Movies',
+                'Grossing Movies',
                 style:GoogleFonts.aBeeZee(
                   fontSize: 25,
                   ),
@@ -129,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height:32),
               SizedBox(
                 child:FutureBuilder(
-                  future: upcomingMovies,
+                  future: grossingMovies,
                   builder: (context,snapshot){
                     if (snapshot.hasError){
                       return Center(
@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     }else if(snapshot.hasData){
                       //final data = snapshot.data;
-                      return MoviesSlider(snapshot: snapshot,);
+                      return MoviesSlider(snapshot: snapshot,movieType: 'Grossing',);
                     }else{
                       return const Center(child:CircularProgressIndicator());
                     }

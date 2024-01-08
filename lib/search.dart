@@ -35,7 +35,7 @@ class _SearchPageState extends State<SearchPage> {
   final actorDetails = await getActorDetails(actorName);
     final response = await http.get(
       Uri.parse(
-          'https://api.themoviedb.org/3/discover/movie?with_cast=${actorDetails?.id}&sort_by=release_date.asc&api_key=${Constants.apiKey}&page=1',
+          'https://api.themoviedb.org/3/discover/movie?with_cast=${actorDetails?.id}&sort_by=release_date.desc&api_key=${Constants.apiKey}&page=1',
         ),
     );
 
