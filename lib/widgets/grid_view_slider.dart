@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie_app/constants.dart';
 import 'package:movie_app/models/movie.dart';
-import 'package:movie_app/details_screen.dart';
+import 'package:movie_app/screens/details_screen.dart';
 
 
 class grid_slider extends StatelessWidget {
@@ -18,7 +18,7 @@ class grid_slider extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 6,
+        crossAxisCount: 4,
         crossAxisSpacing: 8.0,
         mainAxisSpacing: 8.0,
         childAspectRatio: 2/3,

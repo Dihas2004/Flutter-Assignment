@@ -12,6 +12,13 @@ dependencies:
   google_fonts: ^6.1.0
   http: ^1.1.2
   carousel_slider: ^4.2.1
+  firebase_auth: ^4.17.4
+  cloud_firestore: ^4.15.4
+  provider: ^6.1.1
+  firebase_core: ^2.25.4
+  fluttertoast: ^8.2.2
+  font_awesome_flutter: ^10.6.0
+  google_sign_in: ^6.1.5
 
 dev_dependencies:
   flutter_test:

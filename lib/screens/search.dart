@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:movie_app/constants.dart';
-import 'package:movie_app/details_screen.dart';
+import 'package:movie_app/screens/details_screen.dart';
 import 'package:movie_app/models/actor.dart';
 import 'package:movie_app/models/movie.dart';
 import 'package:http/http.dart' as http;
@@ -203,7 +203,7 @@ class _SearchPageState extends State<SearchPage> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
+            padding: const EdgeInsets.only(left: 4, right: 4, top: 8, bottom: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -356,7 +356,9 @@ class _SearchPageState extends State<SearchPage> {
                               borderRadius: BorderRadius.circular(5),
                               
                               child: Image.network(
-                                '${Constants.imageBaseUrl}${displayedMovies[index].posterPath}',
+                                displayedMovies[index].posterPath != null
+                                  ? '${Constants.imageBaseUrl}${displayedMovies[index].posterPath!}'
+                                    : 'https://cdn.dribbble.com/users/1242216/screenshots/9326781/media/6384fef8088782664310666d3b7d4bf2.png', 
                                 width: 150,
                                 height: double.infinity,
                                 filterQuality: FilterQuality.high,

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "900028268549",
+    "project_id": "movieblitz-151ec",
+    "storage_bucket": "movieblitz-151ec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:900028268549:android:3805be0a39658232cf1c6c",
+        "android_client_info": {
+          "package_name": "com.example.movie_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfDVOnuZsC-uFy-aeeWgxxlBuz9g54UAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
