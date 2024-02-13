@@ -84,45 +84,7 @@ class Movies {
     return watchedMovies.contains(movieId);
   }
 
-  Future<Movies> fetchMovieDetails() async {
-    final url = 'https://api.themoviedb.org/3/movie/$movieID?api_key=${Constants.apiKey}';
-    print('Fetching movie details from: $url');
-
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      final decodedData = json.decode(response.body);
-
-      // Extract relevant movie details
-      String title = decodedData['original_title'] ?? '';
-      String backdropPath = decodedData['backdrop_path'] ?? '';
-      String description = decodedData['overview'] ?? '';
-      int movieReleaseYear = decodedData['release_date'] != null
-          ? int.tryParse(decodedData['release_date'].toString().split('-')[0]) ?? 0
-          : 0;
-      double voteAvg = decodedData['vote_average'] != null
-          ? (decodedData['vote_average'] as num).toDouble()
-          : 0.0;
-      String posterPath = decodedData['poster_path'] != null
-          ? '${Constants.imageBaseUrl}${decodedData['poster_path']}'
-          : '';
-
-      // Create a new Movies instance with updated details
-      return Movies(
-        title: title,
-        backdropPath: backdropPath,
-        description: description,
-        movieReleaseYear: movieReleaseYear,
-        voteAvg: voteAvg,
-        posterPath: posterPath,
-        movieID: movieID,
-        cast: cast,
-      );
-    } else {
-      print('Failed to fetch movie details. Status code: ${response.statusCode}, Response body: ${response.body}');
-      throw Exception('Failed to fetch movie details');
-    }
-  }
+  
 
   factory Movies.fromJson(Map<String, dynamic> json) {
     return Movies(
