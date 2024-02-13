@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_app/api/api.dart';
 import 'package:movie_app/models/movie.dart';
+import 'package:movie_app/screens/login.dart';
 import 'package:movie_app/screens/search.dart';
 import 'package:movie_app/widgets/movies_slider.dart';
 import 'package:movie_app/widgets/trending_slider.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:movie_app/widgets/watchedMovies.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -124,10 +126,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
               ),
-              // Your existing code for the other functionality
-              // ...
 
-              // Your existing code for the sign-out button
+              const SizedBox(height: 32),
+              Text(
+                'Watched Movies',
+                style: GoogleFonts.aBeeZee(
+                  fontSize: 25,
+                ),
+              ),
+              const SizedBox(height: 32),
+              WatchedMoviesWidget(userId: globalUserId?? 'LYFYEDjpllF7fAkKWtP5'),
+              
               GestureDetector(
                 onTap: () {
                   FirebaseAuth.instance.signOut();
@@ -151,6 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              
             ],
           ),
         ),
