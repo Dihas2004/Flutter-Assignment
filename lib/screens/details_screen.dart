@@ -74,7 +74,7 @@ class DetailsScreen extends StatelessWidget {
                       if (!movie.isMovieWatched(movie.movieID!.toInt())){
                       movie.markAsWatched(movie.movieID!);
 
-                      addWatchedMovie(globalUserId!, movie.movieID.toString());
+                      addWatchedMovie(globalUserId!, movie.movieID.toString(),movie.title!,movie.posterPath!);
                       }
                       
                       // Add additional logic if needed
@@ -164,7 +164,7 @@ class DetailsScreen extends StatelessWidget {
       ),
     );
   }
-  void addWatchedMovie(String userId, String movieId) {
+  void addWatchedMovie(String userId, String movieId,String movieTitle,String moviePoster) {
   // Reference to the user's document
   DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
 
@@ -174,7 +174,10 @@ class DetailsScreen extends StatelessWidget {
   // Add a new document for the watched movie
   watchedMoviesRef.add({
     'movieId': movieId,
-    'watchedAt': FieldValue.serverTimestamp(), // Optional: Store the timestamp
+    'watchedAt': FieldValue.serverTimestamp(),
+    'movieTitle':movieTitle,
+    'moviePoster':moviePoster,
+     // Optional: Store the timestamp
   });
   }
 }
