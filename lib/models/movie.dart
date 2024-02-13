@@ -60,6 +60,8 @@ class Movies {
   int? movieID;
   List<Cast> cast;
 
+  List<int> watchedMovies = [];
+
   Movies({
     this.title,
     this.movieReleaseYear,
@@ -70,6 +72,17 @@ class Movies {
     this.movieID,
     required this.cast,
   });
+
+  void markAsWatched(int movieId) {
+    if (!watchedMovies.contains(movieId)) {
+      watchedMovies.add(movieId);
+    }
+  }
+
+  // Function to check if a movie is watched
+  bool isMovieWatched(int movieId) {
+    return watchedMovies.contains(movieId);
+  }
 
   factory Movies.fromJson(Map<String, dynamic> json) {
     return Movies(

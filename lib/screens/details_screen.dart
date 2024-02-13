@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_app/colors.dart';
 import 'package:movie_app/constants.dart';
 import 'package:movie_app/models/movie.dart';
+import 'package:movie_app/screens/login.dart';
 import 'package:movie_app/widgets/back_button.dart';
 
 class DetailsScreen extends StatelessWidget {
@@ -65,6 +67,19 @@ class DetailsScreen extends StatelessWidget {
                       fontSize: 25,
                       fontWeight: FontWeight.w400,
                     ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Implement logic to mark the movie as watched
+                      if (!movie.isMovieWatched(movie.movieID!.toInt())){
+                      movie.markAsWatched(movie.movieID!);
+
+                      addWatchedMovie(globalUserId!, movie.movieID.toString());
+                      }
+                      
+                      // Add additional logic if needed
+                    },
+                    child: Text('Mark as Watched'),
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -149,6 +164,19 @@ class DetailsScreen extends StatelessWidget {
       ),
     );
   }
+  void addWatchedMovie(String userId, String movieId) {
+  // Reference to the user's document
+  DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+  // Reference to the subcollection 'watchedMovies' within the user's document
+  CollectionReference watchedMoviesRef = userDocRef.collection('watchedMovies');
+
+  // Add a new document for the watched movie
+  watchedMoviesRef.add({
+    'movieId': movieId,
+    'watchedAt': FieldValue.serverTimestamp(), // Optional: Store the timestamp
+  });
+  }
 }
 
  Widget _buildCastItem(Cast actor) {
@@ -183,4 +211,5 @@ class DetailsScreen extends StatelessWidget {
         ],
       ),
     );
+    
   }

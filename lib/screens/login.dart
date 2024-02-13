@@ -8,6 +8,10 @@ import 'package:movie_app/toast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:movie_app/services/firebase_auth_services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+
+String? globalUserId;
 
 
 class LoginPage extends StatefulWidget {
@@ -160,26 +164,44 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _signIn() async {
-    setState(() {
-      _isSigning = true;
-    });
+  setState(() {
+    _isSigning = true;
+  });
 
-    String email = _emailController.text;
-    String password = _passwordController.text;
+  String email = _emailController.text;
+  String password = _passwordController.text;
 
-    User? user = await _auth.signInWithEmailAndPassword(email, password);
+  User? user = await _auth.signInWithEmailAndPassword(email, password);
 
-    setState(() {
-      _isSigning = false;
-    });
+  setState(() {
+    _isSigning = false;
+  });
 
-    if (user != null) {
+  if (user != null) {
+    // Get user document from Firestore using the email
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // User found in Firestore
+      String userId = querySnapshot.docs.first.id;
+      globalUserId = userId;
+      print('User ID: $userId');
       showToast(message: "User is successfully signed in");
+
+      // Navigate to home page or perform other actions as needed
       Navigator.pushNamed(context, "/home");
     } else {
-      showToast(message: "some error occured");
+      // User not found in Firestore
+      showToast(message: "User not found");
     }
+  } else {
+    showToast(message: "Some error occurred");
   }
+}
+
 
 
   _signInWithGoogle()async{
