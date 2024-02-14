@@ -136,19 +136,19 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _signUp() async {
 
-setState(() {
-  isSigningUp = true;
-});
+    setState(() {
+      isSigningUp = true;
+    });
 
-    String Username = _usernameController.text;
-    String Email = _emailController.text;
-    String Password = _passwordController.text;
+        String Username = _usernameController.text;
+        String Email = _emailController.text;
+        String Password = _passwordController.text;
 
-    User? user = await _auth.signUpWithEmailAndPassword(Email, Password);
+        User? user = await _auth.signUpWithEmailAndPassword(Email, Password);
 
-setState(() {
-  isSigningUp = false;
-});
+    setState(() {
+      isSigningUp = false;
+    });
     if (user != null) {
       showToast(message: "User is successfully created");
       _createData(UserModel(
@@ -167,6 +167,7 @@ setState(() {
 
 
 void _createData(UserModel userModel) {
+
     final userCollection = FirebaseFirestore.instance.collection("users");
 
     String id = userCollection.doc().id;
@@ -179,9 +180,10 @@ void _createData(UserModel userModel) {
     ).toJson();
 
     userCollection.doc(id).set(newUser);
-  }
+    
+}
 
-  class UserModel{
+class UserModel{
   final String? username;
   final String? email;
   final String? password;
