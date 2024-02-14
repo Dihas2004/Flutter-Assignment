@@ -140,7 +140,7 @@ class _SearchPageState extends State<SearchPage> {
     return allMovies;
   }
 
-   @override
+  @override
   void initState() {
     super.initState();
     moviesList = fetchAllMovies();
