@@ -164,22 +164,59 @@ class DetailsScreen extends StatelessWidget {
       ),
     );
   }
-  void addWatchedMovie(String userId, String movieId,String movieTitle,String moviePoster) {
+  // void addWatchedMovie(String userId, String movieId,String movieTitle,String moviePoster) {
+  // // Reference to the user's document
+  // DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+  // // Reference to the subcollection 'watchedMovies' within the user's document
+  // CollectionReference watchedMoviesRef = userDocRef.collection('watchedMovies');
+
+  // // Add a new document for the watched movie
+  // watchedMoviesRef.add({
+  //   'movieId': movieId,
+  //   'watchedAt': FieldValue.serverTimestamp(),
+  //   'movieTitle':movieTitle,
+  //   'moviePoster':moviePoster,
+  //    // Optional: Store the timestamp
+  // });
+  // }
+  Future<bool> isMovieIdAlreadyExists(String userId, String movieId) async {
   // Reference to the user's document
   DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
 
   // Reference to the subcollection 'watchedMovies' within the user's document
   CollectionReference watchedMoviesRef = userDocRef.collection('watchedMovies');
 
-  // Add a new document for the watched movie
-  watchedMoviesRef.add({
-    'movieId': movieId,
-    'watchedAt': FieldValue.serverTimestamp(),
-    'movieTitle':movieTitle,
-    'moviePoster':moviePoster,
-     // Optional: Store the timestamp
-  });
+  // Check if a document with the specified movieId exists
+  QuerySnapshot existingMovies = await watchedMoviesRef.where('movieId', isEqualTo: movieId).get();
+
+  // Return true if there are existing documents with the same movieId, otherwise false
+  return existingMovies.docs.isNotEmpty;
+}
+
+Future<void> addWatchedMovie(String userId, String movieId, String movieTitle, String moviePoster) async {
+  bool isMovieIdExists = await isMovieIdAlreadyExists(userId, movieId);
+
+  // Reference to the user's document
+  DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+  // Reference to the subcollection 'watchedMovies' within the user's document
+  CollectionReference watchedMoviesRef = userDocRef.collection('watchedMovies');
+
+  if (!isMovieIdExists) {
+    // Add a new document for the watched movie only if the movieId doesn't exist
+    watchedMoviesRef.add({
+      'movieId': movieId,
+      'watchedAt': FieldValue.serverTimestamp(),
+      'movieTitle': movieTitle,
+      'moviePoster': moviePoster,
+    });
+  } else {
+    // Handle the case where the movieId already exists (optional)
+    print('Movie with ID $movieId already exists in the watched movies collection.');
   }
+}
+
 }
 
  Widget _buildCastItem(Cast actor) {
