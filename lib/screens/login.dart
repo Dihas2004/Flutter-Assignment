@@ -1,6 +1,5 @@
 //import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_app/screens/sign_up.dart';
 import 'package:movie_app/widgets/form_container_widget.dart';
