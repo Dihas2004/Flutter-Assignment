@@ -30,25 +30,26 @@ class _SearchPageState extends State<SearchPage> {
   int currentPage = 1;
 
   Future<List<Movies>> getMoviesByActor(String actorName) async {
-  List<Movies> searchResults = [];
+    List<Movies> searchResults = [];
 
-  final actorDetails = await getActorDetails(actorName);
-    final response = await http.get(
-      Uri.parse(
-          'https://api.themoviedb.org/3/discover/movie?with_cast=${actorDetails?.id}&sort_by=release_date.desc&api_key=${Constants.apiKey}&page=1',
-        ),
-    );
+    final actorDetails = await getActorDetails(actorName);
+      final response = await http.get(
+        Uri.parse(
+            'https://api.themoviedb.org/3/discover/movie?with_cast=${actorDetails?.id}&sort_by=release_date.desc&api_key=${Constants.apiKey}&page=1',
+          ),
+      );
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> data = jsonDecode(response.body);
-      List<dynamic> movies = data['results'] ?? [];
-      searchResults.addAll(movies.map((json) => Movies.fromJson(json)).toList());
-    } else {
-      throw Exception('Failed to search movies');
-    }
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        List<dynamic> movies = data['results'] ?? [];
+        searchResults.addAll(movies.map((json) => Movies.fromJson(json)).toList());
+      } else {
+        throw Exception('Failed to search movies');
+      }
 
     return searchResults;
-}
+    
+  }
 
   Future<Actor?> getActorDetails(String actorName) async {
     final response = await http.get(
