@@ -8,8 +8,8 @@ import 'package:movie_app/models/movie.dart';
 import 'package:http/http.dart' as http;
 
 enum SearchMode {
-  MovieTitle,
-  ActorName,
+  movieTitle,
+  actorName,
 }
 
 class SearchPage extends StatefulWidget {
@@ -21,7 +21,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   late Future<List<Movies>> moviesList;
-  SearchMode searchMode = SearchMode.MovieTitle;
+  SearchMode searchMode = SearchMode.movieTitle;
   
   TextEditingController searchController = TextEditingController();
   List<Movies> displayedMovies = [];
@@ -84,7 +84,7 @@ class _SearchPageState extends State<SearchPage> {
       // Clear the search results when changing the mode
       displayedMovies = storedMovies;
       searchController.clear();
-      if (searchMode == SearchMode.MovieTitle) {
+      if (searchMode == SearchMode.movieTitle) {
         // Fetch and display the initial movies when searching by movie title
         moviesList.then((allMovies) {
           displayedMovies = allMovies.take(20).toList();
@@ -208,9 +208,9 @@ class _SearchPageState extends State<SearchPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  onPressed: () => updateSearchMode(SearchMode.MovieTitle),
+                  onPressed: () => updateSearchMode(SearchMode.movieTitle),
                   style: ElevatedButton.styleFrom(
-                    primary: searchMode == SearchMode.MovieTitle
+                    primary: searchMode == SearchMode.movieTitle
                       ? Colors.blue // Highlighted color for selected mode
                       : Colors.grey.shade800,
                   ),
@@ -218,9 +218,9 @@ class _SearchPageState extends State<SearchPage> {
                 ),
                 ElevatedButton(
                 
-                  onPressed: () => updateSearchMode(SearchMode.ActorName),
+                  onPressed: () => updateSearchMode(SearchMode.actorName),
                   style: ElevatedButton.styleFrom(
-                    primary: searchMode == SearchMode.ActorName
+                    primary: searchMode == SearchMode.actorName
                       ? Colors.blue // Highlighted color for selected mode
                       : Colors.grey.shade800,
                   ),
@@ -253,7 +253,7 @@ class _SearchPageState extends State<SearchPage> {
                   // ... existing code ...
                 } else {
                 // Update the displayedMovies list based on the search query or actor name
-                  if (searchMode == SearchMode.MovieTitle) {
+                  if (searchMode == SearchMode.movieTitle) {
                     // Search by movie title
                     searchMovies(query).then((searchResults) {
                       displayedMovies = searchResults.take(20).toList();
