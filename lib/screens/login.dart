@@ -163,43 +163,43 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _signIn() async {
-  setState(() {
-    _isSigning = true;
-  });
+    setState(() {
+      _isSigning = true;
+    });
 
-  String email = _emailController.text;
-  String password = _passwordController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
 
-  User? user = await _auth.signInWithEmailAndPassword(email, password);
+    User? user = await _auth.signInWithEmailAndPassword(email, password);
 
-  setState(() {
-    _isSigning = false;
-  });
+    setState(() {
+      _isSigning = false;
+    });
 
-  if (user != null) {
-    // Get user document from Firestore using the email
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('email', isEqualTo: email)
-        .get();
+    if (user != null) {
+      // Get user document from Firestore using the email
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .get();
 
-    if (querySnapshot.docs.isNotEmpty) {
-      // User found in Firestore
-      String userId = querySnapshot.docs.first.id;
-      globalUserId = userId;
-      print('User ID: $userId');
-      showToast(message: "User is successfully signed in");
+      if (querySnapshot.docs.isNotEmpty) {
+        // User found in Firestore
+        String userId = querySnapshot.docs.first.id;
+        globalUserId = userId;
+        print('User ID: $userId');
+        showToast(message: "User is successfully signed in");
 
-      // Navigate to home page or perform other actions as needed
-      Navigator.pushNamed(context, "/home");
+        // Navigate to home page or perform other actions as needed
+        Navigator.pushNamed(context, "/home");
+      } else {
+        // User not found in Firestore
+        showToast(message: "User not found");
+      }
     } else {
-      // User not found in Firestore
-      showToast(message: "User not found");
+      showToast(message: "Some error occurred");
     }
-  } else {
-    showToast(message: "Some error occurred");
   }
-}
 
 
 
@@ -225,7 +225,7 @@ class _LoginPageState extends State<LoginPage> {
       }
 
     }catch(e) {
-showToast(message: "some error occured $e");
+      showToast(message: "some error occured $e");
     }
 
 
