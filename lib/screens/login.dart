@@ -1,17 +1,15 @@
-//import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:movie_app/screens/sign_up.dart';
-import 'package:movie_app/widgets/form_container_widget.dart';
-import 'package:movie_app/toast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:movie_app/services/firebase_auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:movie_app/screens/sign_up.dart';
+import 'package:movie_app/services/firebase_auth_services.dart';
+import 'package:movie_app/widgets/form_container_widget.dart';
+import 'package:movie_app/toast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 String? globalUserId;
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,6 +24,21 @@ class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSavedEmail();
+  }
+
+  void _initializeSavedEmail() async {
+    String? savedEmail = await getSavedEmailFromSharedPreferences();
+    if (savedEmail != null) {
+      setState(() {
+        _emailController.text = savedEmail;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -49,10 +62,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               Text(
                 "Login",
-                style: TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.bold
-                ),
+                style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
               ),
               SizedBox(
                 height: 30,
@@ -85,23 +95,26 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
-                    child: _isSigning ? CircularProgressIndicator(
-                      color: Colors.white,) :
-                      Text(
-                        "Login",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    child: _isSigning
+                        ? CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : Text(
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ),
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               GestureDetector(
                 onTap: () {
                   _signInWithGoogle();
-
                 },
                 child: Container(
                   width: double.infinity,
@@ -114,8 +127,13 @@ class _LoginPageState extends State<LoginPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(FontAwesomeIcons.google, color: Colors.white,),
-                        SizedBox(width: 5,),
+                        Icon(
+                          FontAwesomeIcons.google,
+                          color: Colors.white,
+                        ),
+                        SizedBox(
+                          width: 5,
+                        ),
                         Text(
                           "Sign in with Google",
                           style: TextStyle(
@@ -128,12 +146,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-
-
               SizedBox(
                 height: 20,
               ),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -146,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => SignUpPage()),
-                            (route) => false,
+                        (route) => false,
                       );
                     },
                     child: Text(
@@ -181,6 +196,9 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     if (user != null) {
+      // Save email to shared preferences
+      saveEmailToSharedPreferences(email);
+
       // Get user document from Firestore using the email
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -205,19 +223,16 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-
-
-  _signInWithGoogle()async{
-
+  _signInWithGoogle() async {
     final GoogleSignIn _googleSignIn = GoogleSignIn();
 
     try {
+      final GoogleSignInAccount? googleSignInAccount =
+          await _googleSignIn.signIn();
 
-      final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
-
-      if(googleSignInAccount != null ){
-        final GoogleSignInAuthentication googleSignInAuthentication = await
-        googleSignInAccount.authentication;
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication =
+            await googleSignInAccount.authentication;
 
         final AuthCredential credential = GoogleAuthProvider.credential(
           idToken: googleSignInAuthentication.idToken,
@@ -227,13 +242,18 @@ class _LoginPageState extends State<LoginPage> {
         await _firebaseAuth.signInWithCredential(credential);
         Navigator.pushNamed(context, "/home");
       }
-
-    }catch(e) {
-      showToast(message: "some error occured $e");
+    } catch (e) {
+      showToast(message: "some error occurred $e");
     }
-
-
   }
 
+  Future<void> saveEmailToSharedPreferences(String email) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('login_email', email);
+  }
 
+  Future<String?> getSavedEmailFromSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('login_email');
+  }
 }
