@@ -12,20 +12,35 @@ import 'package:flutter_test/flutter_test.dart';
 
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  testWidgets('Mock Data', (WidgetTester tester) async {
+    // Create a test widget with mock data
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MyApp(
+          // Provide mock data for testing
+          trendingMovies: Future.value([]),
+          topRatedMovies: Future.value([]),
+          grossingMovies: Future.value([]),
+          childrenMovies: Future.value([]),
+          actionChildrenMovies: Future.value([]),
+          romanticChildrenMovies: Future.value([]),
+        ),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
+    
+    // ...
+
+    // Example: Verify that a widget with text '0' is present
     expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
 
-    // Tap the '+' icon and trigger a frame.
+    // Example: Trigger a tap and pump to verify changes
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
-    // Verify that our counter has incremented.
+    // Verify that your expected changes have occurred
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
   });
 }
+

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:movie_app/api/api.dart';
+//import 'package:movie_app/api/api.dart';
 import 'package:movie_app/models/movie.dart';
 import 'package:movie_app/screens/login.dart';
 import 'package:movie_app/screens/search.dart';
@@ -11,30 +11,35 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:movie_app/widgets/watchedMovies.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final Future<List<Movies>> trendingMovies;
+  final Future<List<Movies>> topRatedMovies;
+  final Future<List<Movies>> grossingMovies;
+  final Future<List<Movies>> childrenMovies;
+  final Future<List<Movies>> actionChildrenMovies;
+  final Future<List<Movies>> romanticChildrenMovies;
+
+  const HomeScreen({
+    Key? key,
+    required this.trendingMovies,
+    required this.topRatedMovies,
+    required this.grossingMovies,
+    required this.childrenMovies,
+    required this.actionChildrenMovies,
+    required this.romanticChildrenMovies,
+  }) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Future<List<Movies>> trendingMovies;
-  late Future<List<Movies>> topRatedMovies;
-  late Future<List<Movies>> grossingMovies;
-  late Future<List<Movies>> childrenMovies;
-  late Future<List<Movies>> actionChildrenMovies;
-  late Future<List<Movies>> romanticChildrenMovies;
+  
   bool isChildrenFriendly = false;
 
   @override
   void initState() {
     super.initState();
-    trendingMovies = API().getTrendingMovies();
-    topRatedMovies = API().getTopRatedMovies();
-    grossingMovies = API().getGrossingMovies();
-    childrenMovies = API().getChildMovies();
-    actionChildrenMovies = API().getActionChildMovies();
-    romanticChildrenMovies = API().getRomanticChildMovies();
+    
   }
 
   @override
@@ -89,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 32),
               SizedBox(
                 child: FutureBuilder(
-                  future: trendingMovies,
+                  future: widget.trendingMovies,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(child: Text(snapshot.error.toString()));
@@ -111,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 32),
               SizedBox(
                 child: FutureBuilder(
-                  future: topRatedMovies,
+                  future: widget.topRatedMovies,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(child: Text(snapshot.error.toString()));
@@ -133,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 32),
               SizedBox(
                 child: FutureBuilder(
-                  future: grossingMovies,
+                  future: widget.grossingMovies,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(child: Text(snapshot.error.toString()));
@@ -154,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 32),
               SizedBox(
                 child: FutureBuilder(
-                  future: childrenMovies,
+                  future: widget.childrenMovies,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(child: Text(snapshot.error.toString()));
@@ -175,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 32),
               SizedBox(
                 child: FutureBuilder(
-                  future: actionChildrenMovies,
+                  future: widget.actionChildrenMovies,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(child: Text(snapshot.error.toString()));
@@ -196,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 32),
               SizedBox(
                 child: FutureBuilder(
-                  future: romanticChildrenMovies,
+                  future: widget.romanticChildrenMovies,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(child: Text(snapshot.error.toString()));

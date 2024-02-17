@@ -251,7 +251,7 @@ class _SearchPageState extends State<SearchPage> {
                         // Update the state to rebuild the UI with the fetched credits
                     setState(() {});
                   });
-                  // ... existing code ...
+                  
                 } else {
                 // Update the displayedMovies list based on the search query or actor name
                   if (searchMode == SearchMode.movieTitle) {
@@ -334,7 +334,7 @@ class _SearchPageState extends State<SearchPage> {
                           controller: scrollController,
                           itemCount: displayedMovies.length,
                           itemBuilder: (context, index) => CustomListTile(
-                            height:200,
+                            height:230,
                             //contentPadding: EdgeInsets.only(left: 20, right: 20,top:0),
                             title: Text(
                               displayedMovies[index].title!,

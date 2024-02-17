@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:movie_app/screens/login.dart'; // Import your login screen here
 
 class SplashScreen extends StatefulWidget {
   final Widget? child;
@@ -10,17 +10,21 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
-@override
+  @override
   void initState() {
-    Future.delayed(
-      Duration(seconds: 3),(){
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => widget.child!), (route) => false);
-    }
-    );
     super.initState();
-  }
 
+    Future.delayed(
+      Duration(seconds: 3),
+      () {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()), // Navigate to LoginPage
+          (route) => false,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

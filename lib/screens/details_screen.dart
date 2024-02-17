@@ -227,7 +227,9 @@ Future<void> addWatchedMovie(String userId, String movieId, String movieTitle, S
           CircleAvatar(
             radius: 40,
             backgroundImage: NetworkImage(
-              '${Constants.imageBaseUrl}${actor.profilePath}',
+              actor.profilePath != null
+                ? '${Constants.imageBaseUrl}${actor.profilePath}'
+                  : 'https://static.vecteezy.com/system/resources/previews/005/337/799/original/icon-image-not-found-free-vector.jpg',
             ),
           ),
           const SizedBox(height: 8),
