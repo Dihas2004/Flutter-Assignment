@@ -14,3 +14,14 @@ void showToast({required String message}){
       fontSize: 16.0
   );
 }
+
+void showTopToast(BuildContext context, {required String message}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: Colors.blue,
+      duration: Duration(seconds: 2),
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
+}

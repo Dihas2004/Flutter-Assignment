@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-//import 'package:movie_app/api/api.dart';
 import 'package:movie_app/models/movie.dart';
 import 'package:movie_app/screens/login.dart';
 import 'package:movie_app/screens/search.dart';
