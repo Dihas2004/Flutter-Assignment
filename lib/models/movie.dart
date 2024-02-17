@@ -109,7 +109,7 @@ class Movies {
   }
   Future<void> fetchCredits(int movieId) async {
   final url = 'https://api.themoviedb.org/3/movie/$movieId/credits?api_key=${Constants.apiKey}';
-  print('Fetching credits from: $url');
+  //print('Fetching credits from: $url');
 
   final response = await http.get(Uri.parse(url));
 
@@ -117,7 +117,7 @@ class Movies {
     final decodedData = json.decode(response.body);
     
     // Print the response to check if it contains the expected data
-    print('Credits response: $decodedData');
+    //print('Credits response: $decodedData');
 
     // Extract cast
     cast = (decodedData['cast'] as List)
@@ -125,7 +125,7 @@ class Movies {
         .toList();
     
   } else {
-    print('Failed to fetch credits. Status code: ${response.statusCode}, Response body: ${response.body}');
+    //print('Failed to fetch credits. Status code: ${response.statusCode}, Response body: ${response.body}');
     throw Exception('Failed to fetch credits');
   }
 }
