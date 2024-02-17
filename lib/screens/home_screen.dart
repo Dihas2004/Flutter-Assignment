@@ -21,6 +21,10 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Movies>> trendingMovies;
   late Future<List<Movies>> topRatedMovies;
   late Future<List<Movies>> grossingMovies;
+  late Future<List<Movies>> childrenMovies;
+  late Future<List<Movies>> actionChildrenMovies;
+  late Future<List<Movies>> romanticChildrenMovies;
+  bool isChildrenFriendly = false;
 
   @override
   void initState() {
@@ -28,6 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
     trendingMovies = API().getTrendingMovies();
     topRatedMovies = API().getTopRatedMovies();
     grossingMovies = API().getGrossingMovies();
+    childrenMovies = API().getChildMovies();
+    actionChildrenMovies = API().getActionChildMovies();
+    romanticChildrenMovies = API().getRomanticChildMovies();
   }
 
   @override
@@ -63,6 +70,18 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  isChildrenFriendly = !isChildrenFriendly;
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                primary: isChildrenFriendly ? Colors.green : Colors.grey,
+              ),
+              child: Text("Children Friendly"),
+            ),
+            if (!isChildrenFriendly)...[
               Text(
                 'Trending Movies',
                 style: GoogleFonts.aBeeZee(fontSize: 25),
@@ -126,6 +145,70 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
               ),
+            ],
+            if(isChildrenFriendly)...[
+              Text(
+                'Popular Children Movies',
+                style: GoogleFonts.aBeeZee(fontSize: 25),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                child: FutureBuilder(
+                  future: childrenMovies,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text(snapshot.error.toString()));
+                    } else if (snapshot.hasData) {
+                      return TrendingSlider(snapshot: snapshot);
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  },
+                ),
+              ),
+            ],
+            if(isChildrenFriendly)...[
+              Text(
+                'Children Action Movies',
+                style: GoogleFonts.aBeeZee(fontSize: 25),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                child: FutureBuilder(
+                  future: actionChildrenMovies,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text(snapshot.error.toString()));
+                    } else if (snapshot.hasData) {
+                      return MoviesSlider(snapshot: snapshot, movieType: 'Action Animation',);
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  },
+                ),
+              ),
+            ],
+            if(isChildrenFriendly)...[
+              Text(
+                'Children Romantic Movies',
+                style: GoogleFonts.aBeeZee(fontSize: 25),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                child: FutureBuilder(
+                  future: romanticChildrenMovies,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text(snapshot.error.toString()));
+                    } else if (snapshot.hasData) {
+                      return MoviesSlider(snapshot: snapshot, movieType: 'Romantic Animation',);
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  },
+                ),
+              ),
+            ],
 
               const SizedBox(height: 32),
               Text(

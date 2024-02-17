@@ -27,7 +27,7 @@ class WatchedMoviesWidget extends StatelessWidget {
           return Visibility(
             visible: watchedMovies.isNotEmpty,
             child: SizedBox(
-              height: 200,
+              height: 230,
               width: double.infinity,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
@@ -74,7 +74,7 @@ class WatchedMoviesWidget extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: SizedBox(
-                          height: 200,
+                          height: 220,
                           width: 150,
                           child: Image.network(
                             filterQuality: FilterQuality.high,

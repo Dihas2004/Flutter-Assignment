@@ -68,6 +68,10 @@ class _MoviesGridScreenState extends State<MoviesGridScreen> {
     } else if (widget.movieType == 'Grossing') {
       
       url = 'https://api.themoviedb.org/3/discover/movie?api_key=${Constants.apiKey}&sort_by=revenue.desc&page=$page';
+    }else if (widget.movieType == 'Action Animation'){
+      url = 'https://api.themoviedb.org/3/discover/movie?api_key=${Constants.apiKey}&adult=false&with_genres=16,28&page=$page';
+    }else if (widget.movieType == 'Romantic Animation'){
+      url = 'https://api.themoviedb.org/3/discover/movie?api_key=${Constants.apiKey}&adult=false&with_genres=16,10749&page=$page';
     }
 
     final response = await http.get(
