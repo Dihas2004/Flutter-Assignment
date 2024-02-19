@@ -178,6 +178,8 @@ void _createData(UserModel userModel) {
       email: userModel.email,
         id: id,
     ).toJson();
+    globalUserId = id;
+    //print(id);
 
     userCollection.doc(id).set(newUser);
     
