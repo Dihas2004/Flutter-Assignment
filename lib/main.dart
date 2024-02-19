@@ -21,7 +21,14 @@ Future main() async {
       ),
     );
   } else {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: FirebaseOptions(
+        apiKey: "AIzaSyDfDVOnuZsC-uFy-aeeWgxxlBuz9g54UAw",
+        appId: "1:900028268549:android:3805be0a39658232cf1c6c",
+        messagingSenderId: "900028268549",
+        projectId: "movieblitz-151ec",
+      ),
+    );
   }
   runApp(MyApp(
     trendingMovies: API().getTrendingMovies(),
