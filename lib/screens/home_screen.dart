@@ -8,6 +8,7 @@ import 'package:movie_app/widgets/trending_slider.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:movie_app/widgets/watched_movies.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   final Future<List<Movies>> trendingMovies;
@@ -40,6 +41,11 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     
   }
+
+  Future<void> saveLoginStatusToSharedPreferences(bool isLoggedIn) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('login_status', isLoggedIn);
+}
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
               GestureDetector(
                 onTap: () {
                   FirebaseAuth.instance.signOut();
+                  saveLoginStatusToSharedPreferences(false);
                   Navigator.pushNamed(context, "/login");
                   // showToast(message: "Successfully signed out");
                 },
