@@ -7,7 +7,7 @@ import 'package:movie_app/widgets/movies_slider.dart';
 import 'package:movie_app/widgets/trending_slider.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:movie_app/widgets/watchedMovies.dart';
+import 'package:movie_app/widgets/watched_movies.dart';
 
 class HomeScreen extends StatefulWidget {
   final Future<List<Movies>> trendingMovies;

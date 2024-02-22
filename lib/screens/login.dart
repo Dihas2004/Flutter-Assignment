@@ -20,6 +20,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _isSigning = false;
+  bool _rememberMe = false;
   final FirebaseAuthService _auth = FirebaseAuthService();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   TextEditingController _emailController = TextEditingController();
@@ -28,7 +29,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _initializeSavedEmail();
+    _initializeLoginStatus();
+    //_initializeSavedEmail();
   }
 
   void _initializeSavedEmail() async {
@@ -59,7 +61,9 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            //crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              
               Text(
                 "Login",
                 style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
@@ -82,6 +86,26 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(
                 height: 30,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom:8.0),
+                    child: Checkbox(
+                      value: _rememberMe,
+                      onChanged: (value) {
+                        setState(() {
+                          _rememberMe = value ?? false;
+                        });
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom:6.0),
+                    child: Text("Remember Me"),
+                  ),
+                ],
               ),
               GestureDetector(
                 onTap: () {
@@ -181,6 +205,28 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Future<void> saveLoginStatusToSharedPreferences(bool isLoggedIn) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('login_status', isLoggedIn);
+}
+
+Future<bool> getLoginStatusFromSharedPreferences() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('login_status') ?? false;
+}
+
+
+
+  void _initializeLoginStatus() async {
+  bool isLoggedIn = await getLoginStatusFromSharedPreferences();
+  print(isLoggedIn);
+  if (isLoggedIn) {
+    // User is already logged in, navigate to the home page or perform other actions
+    Navigator.pushNamed(context, "/home");
+  }
+}
+
+
   void _signIn() async {
     setState(() {
       _isSigning = true;
@@ -197,7 +243,12 @@ class _LoginPageState extends State<LoginPage> {
 
     if (user != null) {
       // Save email to shared preferences
-      saveEmailToSharedPreferences(email);
+      //saveLoginStatusToSharedPreferences(true);
+      if (_rememberMe) {
+      saveLoginStatusToSharedPreferences(true);
+    }
+
+      //saveEmailToSharedPreferences(email);
 
       // Get user document from Firestore using the email
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance

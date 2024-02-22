@@ -52,7 +52,7 @@ class Cast {
 
 class Movies {
   String? title;
-  int? movieReleaseYear;
+  String? movieReleaseYear;
   String? posterPath;
   double? voteAvg;
   String description;
@@ -91,9 +91,7 @@ class Movies {
       title: json['original_title'] as String?,
       backdropPath: json["backdrop_path"] as String?,
       description: json["overview"],
-      movieReleaseYear: json['release_date'] != null
-          ? int.tryParse(json['release_date'].toString().split('-')[0])
-          : null,
+      movieReleaseYear: json['release_date'] ,
       voteAvg: json['vote_average'] != null
           ? (json['vote_average'] as num).toDouble()
           : null,
