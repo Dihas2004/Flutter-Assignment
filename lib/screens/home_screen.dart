@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_app/models/movie.dart';
+import 'package:movie_app/screens/all_movies_screen.dart';
 import 'package:movie_app/screens/login.dart';
 import 'package:movie_app/screens/matching_actors_screen.dart';
 import 'package:movie_app/screens/search.dart';
@@ -42,6 +43,16 @@ class _HomeScreenState extends State<HomeScreen> {
     
     
   }
+  void navigateToGridScreen(String movieType) {
+  // Navigate to the grid screen with the specified movie type
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => MoviesGridScreen(movieType: movieType),
+    ),
+  );
+}
+
 
   Future<void> saveLoginStatusToSharedPreferences(bool isLoggedIn) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -134,7 +145,17 @@ Future<String> getUserIDFromSharedPreferences() async {
                   fontSize: 25,
                 ),
               ),
-              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(height: 32),
+                  ElevatedButton(
+                    onPressed: () => navigateToGridScreen('Top Rated'),
+                    child: Text('See All',style: TextStyle(color: Colors.white),),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
               SizedBox(
                 child: FutureBuilder(
                   future: widget.topRatedMovies,
@@ -156,7 +177,17 @@ Future<String> getUserIDFromSharedPreferences() async {
                   fontSize: 25,
                 ),
               ),
-              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(height: 32),
+                  ElevatedButton(
+                    onPressed: () => navigateToGridScreen('Grossing'),
+                    child: Text('See All',style: TextStyle(color: Colors.white),),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
               SizedBox(
                 child: FutureBuilder(
                   future: widget.grossingMovies,
@@ -198,7 +229,17 @@ Future<String> getUserIDFromSharedPreferences() async {
                 'Children Action Movies',
                 style: GoogleFonts.aBeeZee(fontSize: 25),
               ),
-              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(height: 32),
+                  ElevatedButton(
+                    onPressed: () => navigateToGridScreen('Action Animation'),
+                    child: Text('See All',style: TextStyle(color: Colors.white),),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
               SizedBox(
                 child: FutureBuilder(
                   future: widget.actionChildrenMovies,
@@ -219,7 +260,17 @@ Future<String> getUserIDFromSharedPreferences() async {
                 'Children Romantic Movies',
                 style: GoogleFonts.aBeeZee(fontSize: 25),
               ),
-              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(height: 32),
+                  ElevatedButton(
+                    onPressed: () => navigateToGridScreen('Romantic Animation'),
+                    child: Text('See All',style: TextStyle(color: Colors.white),),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
               SizedBox(
                 child: FutureBuilder(
                   future: widget.romanticChildrenMovies,

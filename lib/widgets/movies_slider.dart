@@ -15,31 +15,31 @@ class MoviesSlider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height:230,
+      height:250,
       width:double.infinity,
       child:ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: snapshot.data.length + 1,
+        itemCount: snapshot.data.length ,
         itemBuilder: (context, index) {
-          if (index == snapshot.data.length) {
-            // Last item in the list, display "See All Movies" button
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigate to the MoviesGridScreen when the button is pressed
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MoviesGridScreen(movieType: movieType),
-                    ),
-                  );
-                },
-                child: Text('See All Movies'),
-              ),
-            );
-          }
+          // if (index == snapshot.data.length) {
+          //   // Last item in the list, display "See All Movies" button
+          //   return Padding(
+          //     padding: const EdgeInsets.all(8.0),
+          //     child: ElevatedButton(
+          //       onPressed: () {
+          //         // Navigate to the MoviesGridScreen when the button is pressed
+          //         Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //             builder: (context) => MoviesGridScreen(movieType: movieType),
+          //           ),
+          //         );
+          //       },
+          //       child: Text('See All Movies'),
+          //     ),
+          //   );
+          // }
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(

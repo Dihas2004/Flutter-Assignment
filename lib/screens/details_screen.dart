@@ -8,7 +8,7 @@ import 'package:movie_app/colors.dart';
 import 'package:movie_app/constants.dart';
 import 'package:movie_app/models/actor.dart';
 import 'package:movie_app/models/movie.dart';
-import 'package:movie_app/screens/login.dart';
+//import 'package:movie_app/screens/login.dart';
 import 'package:movie_app/widgets/back_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

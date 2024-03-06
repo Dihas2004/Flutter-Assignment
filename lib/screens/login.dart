@@ -305,7 +305,7 @@ Future<void> saveUserIDToSharedPreferences(String userID) async {
         _createData(UserModel(
           id: userCredential.user!.uid,
           username: googleSignInAccount.displayName ?? "",
-          email: googleSignInAccount.email ?? "",
+          email: googleSignInAccount.email ,
         ));
         String email = googleSignInAccount.email;
         
