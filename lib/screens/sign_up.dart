@@ -157,7 +157,7 @@ class _SignUpPageState extends State<SignUpPage> {
         email:Email,
       ));
 
-      Navigator.pushNamed(context, "/home");
+      Navigator.pushNamed(context, "/login");
     } else {
       showToast(message: "Some error happend");
     }

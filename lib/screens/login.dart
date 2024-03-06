@@ -215,6 +215,11 @@ Future<bool> getLoginStatusFromSharedPreferences() async {
   return prefs.getBool('login_status') ?? false;
 }
 
+Future<void> saveUserIDToSharedPreferences(String userID) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('user_id', userID);
+}
+
 
 
   void _initializeLoginStatus() async {
@@ -260,6 +265,7 @@ Future<bool> getLoginStatusFromSharedPreferences() async {
         // User found in Firestore
         String userId = querySnapshot.docs.first.id;
         globalUserId = userId;
+        saveUserIDToSharedPreferences(userId);
         print('User ID: $userId');
         showToast(message: "User is successfully signed in");
 
@@ -275,7 +281,9 @@ Future<bool> getLoginStatusFromSharedPreferences() async {
   }
 
   _signInWithGoogle() async {
-    final GoogleSignIn _googleSignIn = GoogleSignIn();
+    final GoogleSignIn _googleSignIn = GoogleSignIn(
+  clientId: '900028268549-7h85d0hkc0qb0c79u29uqnc3akop8map.apps.googleusercontent.com',
+);
 
     try {
       final GoogleSignInAccount? googleSignInAccount =
@@ -290,8 +298,35 @@ Future<bool> getLoginStatusFromSharedPreferences() async {
           accessToken: googleSignInAuthentication.accessToken,
         );
 
-        await _firebaseAuth.signInWithCredential(credential);
+        UserCredential userCredential = await  _firebaseAuth.signInWithCredential(credential);
+
+         if (userCredential.user != null) {
+        showToast(message: "Signed in with Google successfully");
+        _createData(UserModel(
+          id: userCredential.user!.uid,
+          username: googleSignInAccount.displayName ?? "",
+          email: googleSignInAccount.email ?? "",
+        ));
+        String email = googleSignInAccount.email;
+        
+
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // User found in Firestore
+        String userId = querySnapshot.docs.first.id;
+        globalUserId = userId;
+        saveUserIDToSharedPreferences(userId);
+        print('User ID: $userId');
+        showToast(message: "User is successfully signed in");
+
+        // Navigate to home page or perform other actions as needed
         Navigator.pushNamed(context, "/home");
+      }
+      }
       }
     } catch (e) {
       showToast(message: "some error occurred $e");
@@ -306,5 +341,21 @@ Future<bool> getLoginStatusFromSharedPreferences() async {
   Future<String?> getSavedEmailFromSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('login_email');
+  }
+}
+
+Future<void> _createData(UserModel userModel) async {
+  final userCollection = FirebaseFirestore.instance.collection("users");
+
+  // Check if the user already exists based on the UID
+  final existingUserDoc = await userCollection.doc(userModel.id!).get();
+
+  if (!existingUserDoc.exists) {
+    // User does not exist, create a new user model
+    userCollection.doc(userModel.id).set(userModel.toJson());
+  } else {
+    // User already exists, you can update the existing user model if needed
+    // Or handle the situation according to your requirements
+    print("User with ID ${userModel.id} already exists in Firestore");
   }
 }

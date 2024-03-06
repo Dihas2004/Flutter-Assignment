@@ -63,18 +63,38 @@ class MoviesSlider extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                   
-                child: SizedBox(
-                  
-                  height:220,
-                  width:150,
-                  child:Image.network(
-                    filterQuality: FilterQuality.high,
-                    fit: BoxFit.cover,
-                    '${Constants.imageBaseUrl}${snapshot.data![index].posterPath}',
-              
-                  ),
-                  
-                
+                child: Stack(
+                  children: [
+                    // Movie Poster
+                    SizedBox(
+                      height: 220,
+                      width: 150,
+                      child: Image.network(
+                        filterQuality: FilterQuality.high,
+                        fit: BoxFit.cover,
+                        '${Constants.imageBaseUrl}${snapshot.data![index].posterPath}',
+                      ),
+                    ),
+                    // Movie Title at the Bottom
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        color: Colors.black.withOpacity(0.7), // You can adjust the opacity and color
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                          snapshot.data![index].title,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

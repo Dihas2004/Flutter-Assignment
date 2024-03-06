@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_app/models/movie.dart';
 import 'package:movie_app/screens/login.dart';
+import 'package:movie_app/screens/matching_actors_screen.dart';
 import 'package:movie_app/screens/search.dart';
 import 'package:movie_app/widgets/movies_slider.dart';
 import 'package:movie_app/widgets/trending_slider.dart';
@@ -35,16 +36,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   
   bool isChildrenFriendly = false;
-
   @override
   void initState() {
     super.initState();
+    
     
   }
 
   Future<void> saveLoginStatusToSharedPreferences(bool isLoggedIn) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setBool('login_status', isLoggedIn);
+}
+
+Future<String> getUserIDFromSharedPreferences() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('user_id') ?? 'h9cF4PP4oHKqwfLqgaaV';
 }
 
   @override
@@ -68,6 +74,16 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SearchPage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.people),
+            onPressed: () {
+              // Navigate to the actor comparison screen here
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ActorComparisonPage()),
               );
             },
           ),
@@ -221,14 +237,30 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
 
               const SizedBox(height: 32),
-              Text(
-                'Watched Movies',
-                style: GoogleFonts.aBeeZee(
-                  fontSize: 25,
-                ),
-              ),
+              // Text(
+              //   'Watched Movies',
+              //   style: GoogleFonts.aBeeZee(
+              //     fontSize: 25,
+              //   ),
+              // ),
               const SizedBox(height: 32),
-              WatchedMoviesWidget(userId: globalUserId?? 'LYFYEDjpllF7fAkKWtP5'),
+              FutureBuilder<String>(
+                future: getUserIDFromSharedPreferences(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasError) {
+                      // Handle error
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    // Successfully retrieved user ID
+                    print(snapshot.data);
+                    return WatchedMoviesWidget(userId: snapshot.data ?? 'h9cF4PP4oHKqwfLqgaaV');
+                  } else {
+                    // Still loading
+                    return CircularProgressIndicator();
+                  }
+                },
+              ),
               
               GestureDetector(
                 onTap: () {
