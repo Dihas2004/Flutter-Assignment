@@ -10,6 +10,7 @@ import 'package:movie_app/models/actor.dart';
 import 'package:movie_app/models/movie.dart';
 //import 'package:movie_app/screens/login.dart';
 import 'package:movie_app/widgets/back_button.dart';
+import 'package:movie_app/widgets/play_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailsScreen extends StatefulWidget {
@@ -26,11 +27,17 @@ class DetailsScreen extends StatefulWidget {
 
 class _DetailsScreenState extends State<DetailsScreen> {
   late bool isMovieWatched = false;
+  String? trailerKey;
 
   @override
   void initState() {
     super.initState();
     checkIfMovieIsWatched();
+    getMovieTrailerKey(widget.movie.movieID!).then((key) {
+    setState(() {
+      trailerKey = key;
+    });
+  });
   }
 
   Future<void> checkIfMovieIsWatched() async {
@@ -41,6 +48,28 @@ class _DetailsScreenState extends State<DetailsScreen> {
       //print(isMovieWatched);
     });
   }
+
+  Future<String?> getMovieTrailerKey(int movieId) async {
+  final response = await http.get(
+    Uri.parse('https://api.themoviedb.org/3/movie/$movieId/videos?api_key=${Constants.apiKey}'),
+  );
+
+  if (response.statusCode == 200) {
+    final decodedData = json.decode(response.body);
+    final List<dynamic> results = decodedData['results'];
+
+    // Look for the first trailer in the results
+    final trailer = results.firstWhere(
+      (video) => video['type'] == 'Trailer',
+      orElse: () => null,
+    );
+
+    // Return the trailer key if found, otherwise return null
+    return trailer != null ? trailer['key'] : null;
+  } else {
+    throw Exception('Failed to get movie trailer details. Status code: ${response.statusCode}');
+  }
+}
 
   Future<String> getUserIDFromSharedPreferences() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -207,7 +236,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               child: Padding(
                                 padding: EdgeInsets.all(8),
                                 child: Icon(
-                                  Icons.visibility, // Use the eye icon for "Watched"
+                                  Icons.visibility, 
                                   color: isMovieWatched ? Colors.white : Colors.grey,
                                   size: 30,
                                 ),
@@ -223,28 +252,10 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         ],
                       ),
 
-                      // Play Icon (Add your logic for playing the movie)
+                      
                       Column(
                         children: [
-                          InkWell(
-                            onTap: () {
-                              // Add your logic for playing the movie
-                            },
-                            child: Ink(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.transparent,
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.all(8),
-                                child: Icon(
-                                  Icons.play_circle_outline, // Replace with your play icon
-                                  color: isMovieWatched ? Colors.white : Colors.grey,
-                                  size: 30,
-                                ),
-                              ),
-                            ),
-                          ),
+                          PlayButton(trailerUrl: 'https://www.youtube.com/watch?v=$trailerKey'),
                           Text(
                             'Play',
                             style: TextStyle(
@@ -254,12 +265,12 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         ],
                       ),
 
-                      // To Watch Icon
+                      
                       Column(
                         children: [
                           InkWell(
                             onTap: () {
-                              // Add your logic for "To Watch"
+                              
                             },
                             child: Ink(
                               decoration: BoxDecoration(
@@ -269,7 +280,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               child: Padding(
                                 padding: EdgeInsets.all(8),
                                 child: Icon(
-                                  Icons.bookmark_border, // Replace with your "To Watch" icon
+                                  Icons.bookmark_border, 
                                   color: isMovieWatched ? Colors.white : Colors.grey,
                                   size: 30,
                                 ),
