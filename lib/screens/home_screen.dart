@@ -68,7 +68,7 @@ Future<String> getUserIDFromSharedPreferences() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        //automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Image.asset(
@@ -99,6 +99,33 @@ Future<String> getUserIDFromSharedPreferences() async {
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              title: Text('Sign Out'),
+              onTap: () {
+                FirebaseAuth.instance.signOut();
+                saveLoginStatusToSharedPreferences(false);
+                Navigator.pushNamed(context, "/login");
+              },
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -312,32 +339,6 @@ Future<String> getUserIDFromSharedPreferences() async {
                   }
                 },
               ),
-              
-              GestureDetector(
-                onTap: () {
-                  FirebaseAuth.instance.signOut();
-                  saveLoginStatusToSharedPreferences(false);
-                  Navigator.pushNamed(context, "/login");
-                  // showToast(message: "Successfully signed out");
-                },
-                child: Container(
-                  height: 45,
-                  width: 100,
-                  decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Center(
-                    child: Text(
-                      "Sign out",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18),
-                    ),
-                  ),
-                ),
-              ),
-              
             ],
           ),
         ),
