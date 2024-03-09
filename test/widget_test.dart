@@ -24,6 +24,8 @@ void main() {
           childrenMovies: Future.value([]),
           actionChildrenMovies: Future.value([]),
           romanticChildrenMovies: Future.value([]),
+          trendingWeekMovies: Future.value([]),
+          childrenVoteMovies: Future.value([]),
         ),
       ),
     );

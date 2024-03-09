@@ -37,6 +37,8 @@ Future main() async {
     childrenMovies: API().getChildMovies(),
     actionChildrenMovies: API().getActionChildMovies(),
     romanticChildrenMovies: API().getRomanticChildMovies(),
+    trendingWeekMovies: API().getTrendingWeekMovies(),
+    childrenVoteMovies: API().getChildVoteMovies(),
   ));
 }
 
@@ -47,6 +49,8 @@ class MyApp extends StatelessWidget {
   final Future<List<Movies>> childrenMovies;
   final Future<List<Movies>> actionChildrenMovies;
   final Future<List<Movies>> romanticChildrenMovies;
+  final Future<List<Movies>> trendingWeekMovies;
+  final Future<List<Movies>> childrenVoteMovies;
 
   const MyApp({
     Key? key,
@@ -56,6 +60,8 @@ class MyApp extends StatelessWidget {
     required this.childrenMovies,
     required this.actionChildrenMovies,
     required this.romanticChildrenMovies,
+    required this.trendingWeekMovies,
+    required this.childrenVoteMovies,
   }) : super(key: key);
 
   @override
@@ -79,6 +85,8 @@ class MyApp extends StatelessWidget {
           childrenMovies: childrenMovies,
           actionChildrenMovies: actionChildrenMovies,
           romanticChildrenMovies: romanticChildrenMovies,
+          trendingWeekMovies: trendingWeekMovies,
+          childrenVoteMovies: childrenVoteMovies,
         ),
       },
     );

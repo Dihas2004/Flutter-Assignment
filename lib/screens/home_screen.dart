@@ -19,6 +19,8 @@ class HomeScreen extends StatefulWidget {
   final Future<List<Movies>> childrenMovies;
   final Future<List<Movies>> actionChildrenMovies;
   final Future<List<Movies>> romanticChildrenMovies;
+  final Future<List<Movies>> trendingWeekMovies;
+  final Future<List<Movies>> childrenVoteMovies;
 
   const HomeScreen({
     Key? key,
@@ -28,6 +30,8 @@ class HomeScreen extends StatefulWidget {
     required this.childrenMovies,
     required this.actionChildrenMovies,
     required this.romanticChildrenMovies,
+    required this.trendingWeekMovies,
+    required this.childrenVoteMovies,
   }) : super(key: key);
 
   @override
@@ -35,7 +39,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  
+  String trendingTimeFilter = 'day';
+  String trendingTimeChildrenFilter = 'Revenue';
   bool isChildrenFriendly = false;
   @override
   void initState() {
@@ -52,6 +57,22 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   );
 }
+
+Future<List<Movies>> fetchTrendingMovies() {
+    if (trendingTimeFilter == 'day') {
+      return widget.trendingMovies;
+    } else {
+      return widget.trendingWeekMovies; 
+    }
+  }
+
+  Future<List<Movies>> fetchChildrenMovies() {
+    if (trendingTimeChildrenFilter == 'Revenue') {
+      return widget.childrenMovies;
+    } else {
+      return widget.childrenVoteMovies; 
+    }
+  }
 
 
   Future<void> saveLoginStatusToSharedPreferences(bool isLoggedIn) async {
@@ -150,10 +171,40 @@ Future<String> getUserIDFromSharedPreferences() async {
                 'Trending Movies',
                 style: GoogleFonts.aBeeZee(fontSize: 25),
               ),
+              Row(
+                children: [
+                  
+                    TrendingTimeButton(
+                      label: 'Day',
+                      isSelected: trendingTimeFilter == 'day',
+                      onTap: () {
+                        setState(() {
+                          trendingTimeFilter = 'day';
+                          // Handle the logic for changing the URL for 'Day'
+                          // Call the method or set the variable for the new URL
+                        });
+                      },
+                    
+                  ),
+                  
+                     TrendingTimeButton(
+                      label: 'Week',
+                      isSelected: trendingTimeFilter == 'week',
+                      onTap: () {
+                        setState(() {
+                          trendingTimeFilter = 'week';
+                          // Handle the logic for changing the URL for 'Week'
+                          // Call the method or set the variable for the new URL
+                        });
+                      },
+                    ),
+                  
+                ],
+              ),
               const SizedBox(height: 32),
               SizedBox(
                 child: FutureBuilder(
-                  future: widget.trendingMovies,
+                  future: fetchTrendingMovies(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(child: Text(snapshot.error.toString()));
@@ -235,10 +286,37 @@ Future<String> getUserIDFromSharedPreferences() async {
                 'Popular Children Movies',
                 style: GoogleFonts.aBeeZee(fontSize: 25),
               ),
+              Row(
+                children: [
+                  
+                    TrendingTimeButton(
+                      label: 'Revenue',
+                      isSelected: trendingTimeChildrenFilter == 'Revenue',
+                      onTap: () {
+                        setState(() {
+                          trendingTimeChildrenFilter = 'Revenue';
+                        });
+                      },
+                    
+                  ),
+                  
+                     TrendingTimeButton(
+                      label: 'Vote Avg',
+                      isSelected: trendingTimeChildrenFilter == 'Vote Avg',
+                      onTap: () {
+                        setState(() {
+                          trendingTimeChildrenFilter = 'Vote Avg';
+                          
+                        });
+                      },
+                    ),
+                  
+                ],
+              ),
               const SizedBox(height: 32),
               SizedBox(
                 child: FutureBuilder(
-                  future: widget.childrenMovies,
+                  future: fetchChildrenMovies(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(child: Text(snapshot.error.toString()));
@@ -340,6 +418,40 @@ Future<String> getUserIDFromSharedPreferences() async {
                 },
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class TrendingTimeButton extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const TrendingTimeButton({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue : Colors.grey,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black,
           ),
         ),
       ),
