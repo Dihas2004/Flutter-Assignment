@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:movie_app/constants.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_app/models/actor.dart';
 import '../models/movie.dart';
 
 class API{
@@ -26,6 +27,46 @@ class API{
     }
 
   }
+
+  Future<Actor?> getActorDetailsById(int actorId) async {
+  final response = await http.get(
+    Uri.parse(
+      'https://api.themoviedb.org/3/person/$actorId?api_key=${Constants.apiKey}',
+    ),
+  );
+
+  if (response.statusCode == 200) {
+    Map<String, dynamic> data = jsonDecode(response.body);
+    return Actor.fromJson({
+      'name': data['name'],
+      'known_for_department': data['known_for_department'],
+      'id': data['id'],
+    });
+  } else {
+    throw Exception('Failed to get actor details. Status code: ${response.statusCode}');
+  }
+}
+Future<String?> getMovieTrailerKey(int movieId) async {
+  final response = await http.get(
+    Uri.parse('https://api.themoviedb.org/3/movie/$movieId/videos?api_key=${Constants.apiKey}'),
+  );
+
+  if (response.statusCode == 200) {
+    final decodedData = json.decode(response.body);
+    final List<dynamic> results = decodedData['results'];
+
+    // Look for the first trailer in the results
+    final trailer = results.firstWhere(
+      (video) => video['type'] == 'Trailer',
+      orElse: () => null,
+    );
+
+    // Return the trailer key if found, otherwise return null
+    return trailer != null ? trailer['key'] : null;
+  } else {
+    throw Exception('Failed to get movie trailer details. Status code: ${response.statusCode}');
+  }
+}
 
   Future<List<Movies>> getTrendingWeekMovies() async{
     final response = await http.get(Uri.parse(_trendingWeekURL));

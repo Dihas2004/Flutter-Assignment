@@ -54,6 +54,7 @@ class WatchedMoviesWidget extends StatelessWidget {
                           watchedMovies[index].data() as Map<String, dynamic>;
                       int movieId = int.parse(movieData['movieId']);
                       String posterPath = movieData['moviePoster'];
+                      String title = movieData['movieTitle'];
 
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -92,14 +93,38 @@ class WatchedMoviesWidget extends StatelessWidget {
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: SizedBox(
-                              height: 220,
-                              width: 150,
-                              child: Image.network(
-                                filterQuality: FilterQuality.high,
-                                fit: BoxFit.cover,
-                                posterPath,
-                              ),
+                            child: Stack(
+                              children: [
+                                // Movie Poster
+                                SizedBox(
+                                  height: 220,
+                                  width: 150,
+                                  child: Image.network(
+                                    filterQuality: FilterQuality.high,
+                                    fit: BoxFit.cover,
+                                    '${Constants.imageBaseUrl}${posterPath}',
+                                  ),
+                                ),
+                                // Movie Title at the Bottom
+                                Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: Container(
+                                    color: Colors.black.withOpacity(0.7), // You can adjust the opacity and color
+                                    padding: const EdgeInsets.all(8),
+                                    child: Text(
+                                      title,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

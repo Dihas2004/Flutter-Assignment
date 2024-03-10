@@ -61,6 +61,7 @@ class Movies {
   List<Cast> cast;
 
   List<int> watchedMovies = [];
+  List<int> watchListMovies = [];
 
   Movies({
     this.title,
@@ -76,6 +77,12 @@ class Movies {
   void markAsWatched(int movieId) {
     if (!watchedMovies.contains(movieId)) {
       watchedMovies.add(movieId);
+    }
+  }
+
+  void markAsWatchList(int movieId) {
+    if (!watchListMovies.contains(movieId)) {
+      watchListMovies.add(movieId);
     }
   }
 

@@ -6,6 +6,7 @@ import 'package:movie_app/screens/details_screen.dart';
 import 'package:movie_app/models/actor.dart';
 import 'package:movie_app/models/movie.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_app/screens/matching_actors_screen.dart';
 
 enum SearchMode {
   movieTitle,
@@ -28,6 +29,8 @@ class _SearchPageState extends State<SearchPage> {
   List<Movies> storedMovies = [];
   ScrollController scrollController = ScrollController();
   int currentPage = 1;
+  int currentIndex = 0;
+
 
   Future<List<Movies>> getMoviesByActor(String actorName) async {
     List<Movies> searchResults = [];
@@ -126,7 +129,7 @@ class _SearchPageState extends State<SearchPage> {
     List<Movies> allMovies = [];
 
     final response = await http.get(
-      Uri.parse('https://api.themoviedb.org/3/movie/upcoming?api_key=c70ffdb8f341ef6671fac7cbbc1f09c6&page=1'),
+      Uri.parse('https://api.themoviedb.org/3/movie/upcoming?api_key=${Constants.apiKey}&page=1'),
     );
 
     if (response.statusCode == 200) {
@@ -194,12 +197,13 @@ class _SearchPageState extends State<SearchPage> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        automaticallyImplyLeading: false,
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     Navigator.pop(context);
+        //   },
+        // ),
       ),
       body: Column(
         children: [
@@ -384,6 +388,55 @@ class _SearchPageState extends State<SearchPage> {
               },
             ),
           ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        backgroundColor: Colors.black, // Set the background color to white
+        selectedItemColor: Colors.blue, // Set the selected item color
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+          // Add navigation logic based on index
+          switch (index) {
+            
+            case 0:
+              // Navigate to Search screen
+              
+              break;
+            case 1:
+              
+              Navigator.pushNamed(context, "/home");
+              break;
+            case 2:
+              // Navigate to Actor Comparison screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ActorComparisonPage()),
+              );
+              break;
+            
+            default:
+              break;
+          }
+        },
+        items: [
+          
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Matching Actors',
+          ),
+          
         ],
       ),
     );

@@ -5,6 +5,7 @@ import 'package:movie_app/constants.dart';
 import 'package:movie_app/models/actor.dart';
 import 'package:movie_app/models/movie.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_app/screens/search.dart';
 
 class ActorComparisonPage extends StatefulWidget {
   @override
@@ -15,6 +16,7 @@ class _ActorComparisonPageState extends State<ActorComparisonPage> {
   TextEditingController actor1Controller = TextEditingController();
   TextEditingController actor2Controller = TextEditingController();
   List<Movies> commonMovies = [];
+  int currentIndex = 2;
 
   Future<List<Movies>> getMoviesByActor(String actorName) async {
   List<Movies> searchResults = [];
@@ -113,6 +115,7 @@ class _ActorComparisonPageState extends State<ActorComparisonPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Actor Comparison'),
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -184,6 +187,55 @@ class _ActorComparisonPageState extends State<ActorComparisonPage> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        backgroundColor: Colors.black, // Set the background color to white
+        selectedItemColor: Colors.blue, // Set the selected item color
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+          // Add navigation logic based on index
+          switch (index) {
+            
+            case 0:
+              // Navigate to Search screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SearchPage()),
+              );
+              break;
+            case 1:
+              
+              Navigator.pushNamed(context, "/home");
+              break;
+            case 2:
+              // Navigate to Actor Comparison screen
+              
+              break;
+            
+            default:
+              break;
+          }
+        },
+        items: [
+          
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Matching Actors',
+          ),
+          
+        ],
       ),
     );
   }

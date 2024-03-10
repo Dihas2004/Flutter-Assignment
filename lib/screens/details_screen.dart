@@ -4,13 +4,16 @@ import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:movie_app/api/api.dart';
 import 'package:movie_app/colors.dart';
 import 'package:movie_app/constants.dart';
 import 'package:movie_app/models/actor.dart';
 import 'package:movie_app/models/movie.dart';
 //import 'package:movie_app/screens/login.dart';
 import 'package:movie_app/widgets/back_button.dart';
+import 'package:movie_app/widgets/cast_widget.dart';
 import 'package:movie_app/widgets/play_button.dart';
+import 'package:movie_app/widgets/rating_year_scroll.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailsScreen extends StatefulWidget {
@@ -27,13 +30,15 @@ class DetailsScreen extends StatefulWidget {
 
 class _DetailsScreenState extends State<DetailsScreen> {
   late bool isMovieWatched = false;
+  late bool isMovieWatchList = false;
   String? trailerKey;
 
   @override
   void initState() {
     super.initState();
     checkIfMovieIsWatched();
-    getMovieTrailerKey(widget.movie.movieID!).then((key) {
+    checkIfMovieListIsWatched();
+    API().getMovieTrailerKey(widget.movie.movieID!).then((key) {
     setState(() {
       trailerKey = key;
     });
@@ -49,27 +54,16 @@ class _DetailsScreenState extends State<DetailsScreen> {
     });
   }
 
-  Future<String?> getMovieTrailerKey(int movieId) async {
-  final response = await http.get(
-    Uri.parse('https://api.themoviedb.org/3/movie/$movieId/videos?api_key=${Constants.apiKey}'),
-  );
-
-  if (response.statusCode == 200) {
-    final decodedData = json.decode(response.body);
-    final List<dynamic> results = decodedData['results'];
-
-    // Look for the first trailer in the results
-    final trailer = results.firstWhere(
-      (video) => video['type'] == 'Trailer',
-      orElse: () => null,
-    );
-
-    // Return the trailer key if found, otherwise return null
-    return trailer != null ? trailer['key'] : null;
-  } else {
-    throw Exception('Failed to get movie trailer details. Status code: ${response.statusCode}');
+  Future<void> checkIfMovieListIsWatched() async {
+    String userId = await getUserIDFromSharedPreferences();
+    bool watched = await isMovieIdAlreadyExistsWatchList(userId, widget.movie.movieID.toString());
+    setState(() {
+      isMovieWatchList = watched;
+      //print(isMovieWatched);
+    });
   }
-}
+
+  
 
   Future<String> getUserIDFromSharedPreferences() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -147,61 +141,20 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
 
                   const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Release Year: ',
-                              style: GoogleFonts.roboto(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              widget.movie.movieReleaseYear.toString(),
-                              style: GoogleFonts.roboto(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 16),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          buildInfoContainer('Release Year: ', widget.movie.movieReleaseYear.toString()),
+                          SizedBox(width: 16), // Add spacing between Release Year and Rating
+                          buildInfoContainer('Rating: ', '${widget.movie.voteAvg?.toStringAsFixed(1)}/10'),
+                        ],
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Rating: ',
-                              style: GoogleFonts.roboto(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                            ),
-                            Text(
-                              '${widget.movie.voteAvg?.toStringAsFixed(1)}/10',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -218,7 +171,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               } else {
                                 // If the movie is not watched, mark it as watched and add to Firestore
                                 widget.movie.markAsWatched(widget.movie.movieID!);
-                                addWatchedMovie(userId, widget.movie.movieID.toString(), widget.movie.title!, widget.movie.posterPath!);
+                                addWatchedMovie(userId, widget.movie.movieID.toString(), widget.movie.title!, widget.movie.posterPath!,widget.movie.movieReleaseYear!,widget.movie.voteAvg!);
                               }
 
                               // Update the watched state
@@ -236,7 +189,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               child: Padding(
                                 padding: EdgeInsets.all(8),
                                 child: Icon(
-                                  Icons.visibility, 
+                                  Icons.check, 
                                   color: isMovieWatched ? Colors.white : Colors.grey,
                                   size: 30,
                                 ),
@@ -244,7 +197,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                             ),
                           ),
                           Text(
-                            isMovieWatched ? 'Added to Watched' : 'Watched',
+                            isMovieWatched ? 'Remove from My List' : 'My List',
                             style: TextStyle(
                               color: isMovieWatched ? Colors.white : Colors.grey,
                             ),
@@ -269,28 +222,44 @@ class _DetailsScreenState extends State<DetailsScreen> {
                       Column(
                         children: [
                           InkWell(
-                            onTap: () {
-                              
+                            onTap: () async {
+                              String userId = await getUserIDFromSharedPreferences();
+                              //print(isMovieWatched);
+                              if (isMovieWatchList==true) {
+                                // If the movie is already watched, remove it from Firestore
+                                await removeFromWatchListMovies(userId, widget.movie.movieID.toString());
+                              } else {
+                                // If the movie is not watched, mark it as watched and add to Firestore
+                                widget.movie.markAsWatchList(widget.movie.movieID!);
+                                addWatchListMovie(userId, widget.movie.movieID.toString(), widget.movie.title!, widget.movie.posterPath!,widget.movie.movieReleaseYear!,widget.movie.voteAvg!);
+                              }
+
+                              // Update the watched state
+
+                              //checkIfMovieIsWatched();
+                              setState(() {
+                                isMovieWatchList = !isMovieWatchList;
+                              });
                             },
                             child: Ink(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: Colors.transparent,
+                                color: isMovieWatchList ? Colors.white.withOpacity(0.5) : Colors.transparent,
                               ),
                               child: Padding(
                                 padding: EdgeInsets.all(8),
                                 child: Icon(
-                                  Icons.bookmark_border, 
-                                  color: isMovieWatched ? Colors.white : Colors.grey,
+                                  Icons.bookmark, 
+                                  color: isMovieWatchList ? Colors.white : Colors.grey,
                                   size: 30,
                                 ),
                               ),
                             ),
                           ),
                           Text(
-                            'To Watch',
+                            isMovieWatchList ? 'Remove from Watch List' : 'Watch List',
                             style: TextStyle(
-                              color: isMovieWatched ? Colors.white : Colors.grey,
+                              color: isMovieWatchList ? Colors.white : Colors.grey,
                             ),
                           ),
                         ],
@@ -312,7 +281,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                       scrollDirection: Axis.horizontal,
                       itemCount: widget.movie.cast.length,
                       itemBuilder: (context, index) {
-                        return _buildCastItem(widget.movie.cast[index]);
+                        return buildCastItem(widget.movie.cast[index]);
                       },
                     ),
                   ),
@@ -355,7 +324,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   return existingMovies.docs.isNotEmpty;
 }
 
-Future<void> addWatchedMovie(String userId, String movieId, String movieTitle, String moviePoster) async {
+Future<void> addWatchedMovie(String userId, String movieId, String movieTitle, String moviePoster , String releaseDate , double voteAvg) async {
   bool isMovieIdExists = await isMovieIdAlreadyExists(userId, movieId);
 
   // Reference to the user's document
@@ -371,6 +340,8 @@ Future<void> addWatchedMovie(String userId, String movieId, String movieTitle, S
       'watchedAt': FieldValue.serverTimestamp(),
       'movieTitle': movieTitle,
       'moviePoster': moviePoster,
+      'voteAvg' : voteAvg,
+      'releaseDate':releaseDate
     });
   } else {
     // Handle the case where the movieId already exists (optional)
@@ -384,6 +355,62 @@ Future<void> removeFromWatchedMovies(String userId, String movieId) async {
 
   // Reference to the subcollection 'watchedMovies' within the user's document
   CollectionReference watchedMoviesRef = userDocRef.collection('watchedMovies');
+
+  // Find the document with the specified movieId
+  QuerySnapshot movieQuery = await watchedMoviesRef.where('movieId', isEqualTo: movieId).get();
+
+  // Delete the document if it exists
+  movieQuery.docs.forEach((doc) {
+    doc.reference.delete();
+  });
+}
+
+
+  Future<bool> isMovieIdAlreadyExistsWatchList(String userId, String movieId) async {
+  // Reference to the user's document
+  DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+  // Reference to the subcollection 'watchedMovies' within the user's document
+  CollectionReference watchedMoviesRef = userDocRef.collection('watchListMovies');
+
+  // Check if a document with the specified movieId exists
+  QuerySnapshot existingMovies = await watchedMoviesRef.where('movieId', isEqualTo: movieId).get();
+
+  // Return true if there are existing documents with the same movieId, otherwise false
+  return existingMovies.docs.isNotEmpty;
+}
+
+Future<void> addWatchListMovie(String userId, String movieId, String movieTitle, String moviePoster, String releaseDate , double voteAvg) async {
+  bool isMovieIdExists = await isMovieIdAlreadyExists(userId, movieId);
+
+  // Reference to the user's document
+  DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+  // Reference to the subcollection 'watchedMovies' within the user's document
+  CollectionReference watchedMoviesRef = userDocRef.collection('watchListMovies');
+
+  if (!isMovieIdExists) {
+    // Add a new document for the watched movie only if the movieId doesn't exist
+    watchedMoviesRef.add({
+      'movieId': movieId,
+      'watchedAt': FieldValue.serverTimestamp(),
+      'movieTitle': movieTitle,
+      'moviePoster': moviePoster,
+      'voteAvg' : voteAvg,
+      'releaseDate':releaseDate
+    });
+  } else {
+    // Handle the case where the movieId already exists (optional)
+    print('Movie with ID $movieId already exists in the watched movies collection.');
+  }
+}
+
+Future<void> removeFromWatchListMovies(String userId, String movieId) async {
+  // Reference to the user's document
+  DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+  // Reference to the subcollection 'watchedMovies' within the user's document
+  CollectionReference watchedMoviesRef = userDocRef.collection('watchListMovies');
 
   // Find the document with the specified movieId
   QuerySnapshot movieQuery = await watchedMoviesRef.where('movieId', isEqualTo: movieId).get();
@@ -446,24 +473,7 @@ Future<List<dynamic>> _fetchMoviesWithCommonCast() async {
 
 
 
-Future<Actor?> getActorDetailsById(int actorId) async {
-  final response = await http.get(
-    Uri.parse(
-      'https://api.themoviedb.org/3/person/$actorId?api_key=${Constants.apiKey}',
-    ),
-  );
 
-  if (response.statusCode == 200) {
-    Map<String, dynamic> data = jsonDecode(response.body);
-    return Actor.fromJson({
-      'name': data['name'],
-      'known_for_department': data['known_for_department'],
-      'id': data['id'],
-    });
-  } else {
-    throw Exception('Failed to get actor details. Status code: ${response.statusCode}');
-  }
-}
 
 
 
@@ -504,7 +514,7 @@ Widget _buildNamesAndMoviesLine(int randomActorId, String firstActorName, List<M
   return Container(
     // Your design implementation goes here
     child: FutureBuilder<Actor?>(
-      future: getActorDetailsById(randomActorId),
+      future: API().getActorDetailsById(randomActorId),
       builder: (context, actorSnapshot) {
         if (actorSnapshot.connectionState == ConnectionState.waiting) {
           return Container(); // Display an empty container while loading actor details
@@ -532,41 +542,3 @@ Widget _buildNamesAndMoviesLine(int randomActorId, String firstActorName, List<M
 
 
 }
-
- Widget _buildCastItem(Cast actor) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundImage: NetworkImage(
-              actor.profilePath != null
-                ? '${Constants.imageBaseUrl}${actor.profilePath}'
-                  : 'https://static.vecteezy.com/system/resources/previews/005/337/799/original/icon-image-not-found-free-vector.jpg',
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            actor.name,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            actor.character,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-    
-  }
-

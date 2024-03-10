@@ -5,6 +5,8 @@ import 'package:movie_app/screens/all_movies_screen.dart';
 //import 'package:movie_app/screens/login.dart';
 import 'package:movie_app/screens/matching_actors_screen.dart';
 import 'package:movie_app/screens/search.dart';
+import 'package:movie_app/screens/watch_list_screen.dart';
+import 'package:movie_app/screens/watched_screen.dart';
 import 'package:movie_app/widgets/movies_slider.dart';
 import 'package:movie_app/widgets/trending_slider.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,6 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String trendingTimeFilter = 'day';
   String trendingTimeChildrenFilter = 'Revenue';
   bool isChildrenFriendly = false;
+  
+  int currentIndex = 1;
   @override
   void initState() {
     super.initState();
@@ -98,28 +102,28 @@ Future<String> getUserIDFromSharedPreferences() async {
           height: 40,
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              // Navigate to the search screen here
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SearchPage()),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.people),
-            onPressed: () {
-              // Navigate to the actor comparison screen here
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ActorComparisonPage()),
-              );
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: Icon(Icons.search),
+        //     onPressed: () {
+        //       // Navigate to the search screen here
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(builder: (context) => SearchPage()),
+        //       );
+        //     },
+        //   ),
+        //   IconButton(
+        //     icon: Icon(Icons.people),
+        //     onPressed: () {
+        //       // Navigate to the actor comparison screen here
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(builder: (context) => ActorComparisonPage()),
+        //       );
+        //     },
+        //   ),
+        // ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -138,6 +142,28 @@ Future<String> getUserIDFromSharedPreferences() async {
               ),
             ),
             ListTile(
+              title: Text('My List'),
+              onTap: () async {
+                String currentUserID = await getUserIDFromSharedPreferences();
+                
+                Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => WatchedMovies(userId:currentUserID)),
+              );
+              },
+            ),
+            ListTile(
+              title: Text('Watch List'),
+              onTap: () async {
+                String currentUserID = await getUserIDFromSharedPreferences();
+                
+                Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => WatchListMovies(userId:currentUserID)),
+              );
+              },
+            ),
+            ListTile(
               title: Text('Sign Out'),
               onTap: () {
                 FirebaseAuth.instance.signOut();
@@ -145,6 +171,7 @@ Future<String> getUserIDFromSharedPreferences() async {
                 Navigator.pushNamed(context, "/login");
               },
             ),
+            
           ],
         ),
       ),
@@ -410,6 +437,7 @@ Future<String> getUserIDFromSharedPreferences() async {
                     }
                     // Successfully retrieved user ID
                     print(snapshot.data);
+                    
                     return WatchedMoviesWidget(userId: snapshot.data ?? 'h9cF4PP4oHKqwfLqgaaV');
                   } else {
                     // Still loading
@@ -420,6 +448,57 @@ Future<String> getUserIDFromSharedPreferences() async {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        backgroundColor: Colors.black, // Set the background color to white
+        selectedItemColor: Colors.blue, // Set the selected item color
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+          // Add navigation logic based on index
+          switch (index) {
+            
+            case 0:
+              // Navigate to Search screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SearchPage()),
+              );
+              break;
+            case 1:
+              break;
+            case 2:
+              // Navigate to Actor Comparison screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ActorComparisonPage()),
+              );
+              break;
+            
+            default:
+              break;
+          }
+        },
+        items: [
+          
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Matching Actors',
+          ),
+          
+            
+        ],
       ),
     );
   }
