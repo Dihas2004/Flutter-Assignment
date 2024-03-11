@@ -97,7 +97,7 @@ Future<String> getUserIDFromSharedPreferences() async {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Image.asset(
-          'assets/flutflix.png',
+          'assets/movieblitzlogo.png',
           fit: BoxFit.cover,
           height: 40,
         ),
