@@ -189,7 +189,7 @@ Future<String> getUserIDFromSharedPreferences() async {
                 });
               },
               style: ElevatedButton.styleFrom(
-                primary: isChildrenFriendly ? Colors.green : Colors.grey,
+                backgroundColor: isChildrenFriendly ? Colors.green : Colors.grey,
               ),
               child: Text("Children Friendly"),
             ),

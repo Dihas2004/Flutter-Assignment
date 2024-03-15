@@ -215,7 +215,7 @@ class _SearchPageState extends State<SearchPage> {
                 ElevatedButton(
                   onPressed: () => updateSearchMode(SearchMode.movieTitle),
                   style: ElevatedButton.styleFrom(
-                    primary: searchMode == SearchMode.movieTitle
+                    backgroundColor: searchMode == SearchMode.movieTitle
                       ? Colors.blue // Highlighted color for selected mode
                       : Colors.grey.shade800,
                   ),
@@ -225,7 +225,7 @@ class _SearchPageState extends State<SearchPage> {
                 
                   onPressed: () => updateSearchMode(SearchMode.actorName),
                   style: ElevatedButton.styleFrom(
-                    primary: searchMode == SearchMode.actorName
+                    backgroundColor: searchMode == SearchMode.actorName
                       ? Colors.blue // Highlighted color for selected mode
                       : Colors.grey.shade800,
                   ),

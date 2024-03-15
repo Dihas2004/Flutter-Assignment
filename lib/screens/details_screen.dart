@@ -423,7 +423,7 @@ Future<void> removeFromWatchListMovies(String userId, String movieId) async {
 
 Future<int> _generateRandomActorIdInRange(int start, int end) async {
   final response = await http.get(
-    Uri.parse('https://api.themoviedb.org/3/person/popular?api_key=${Constants.apiKey}&page=1'),
+    Uri.parse('https://api.themoviedb.org/3/person/popular?api_key=${Constants.apiKey}&page=2'),
   );
 
   if (response.statusCode == 200) {
